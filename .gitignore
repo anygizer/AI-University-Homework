@@ -1,0 +1,6 @@
+# NetBeans related data #
+#########################
+nbproject/private/
+build/
+/dist/
+/DFS/nbproject/private/
