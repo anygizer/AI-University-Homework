@@ -30,7 +30,7 @@ public class DFSGraphScene extends GraphPinScene<String, Integer, String>
 	private WidgetAction connectAction = ActionFactory.createConnectAction(interractionLayer, new SceneConnectProvider());
 	private WidgetAction reconnetAction = ActionFactory.createReconnectAction(new SceneReconnectProvider());
 	private WidgetAction editorAction = ActionFactory.createInplaceEditorAction(new LabelTextFieldEditor());
-	private final static String NAME_TEMPLATE = "New Place";
+	private final static String NAME_TEMPLATE = "Place";
 	private long newNameCounter;
 	
 	private String startPlace;
@@ -63,6 +63,7 @@ public class DFSGraphScene extends GraphPinScene<String, Integer, String>
 						}
 						addNode(newName).setPreferredLocation(localPoint);
 						addPin(newName, newName + " pin");
+						validate();
 					}
 				});
 				jmi.setText("Create place");
@@ -135,11 +136,10 @@ public class DFSGraphScene extends GraphPinScene<String, Integer, String>
 	{
 		PlaceWidget widget = new PlaceWidget(this);
 		widget.getLabelWidget().setLabel(node);
-		mainLayer.addChild(widget);
 		
+		widget.getLabelWidget().getActions().addAction(editorAction);
 		widget.getActions().addAction(createSelectAction());
 		widget.getActions().addAction(ActionFactory.createMoveAction());
-		widget.getLabelWidget().getActions().addAction(editorAction);
 		widget.getActions().addAction(ActionFactory.createPopupMenuAction(new PopupMenuProvider() {
 
 			@Override
@@ -171,6 +171,7 @@ public class DFSGraphScene extends GraphPinScene<String, Integer, String>
 			}
 		}));
 		
+		mainLayer.addChild(widget);
 		return widget;
 	}
 
