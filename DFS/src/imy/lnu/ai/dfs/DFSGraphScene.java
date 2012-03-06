@@ -46,7 +46,7 @@ public class DFSGraphScene extends GraphScene<String, Integer>
 					@Override
 					public void actionPerformed(ActionEvent e)
 					{
-						addNode("New place").setPreferredLocation(localPoint);
+						addNode("New place "+(new java.util.Date()).getTime()).setPreferredLocation(localPoint);
 					}
 				});
 				createPlaceMenuItem.setText("Create place");
