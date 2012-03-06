@@ -37,7 +37,7 @@ public class DFSGraphScene extends GraphScene<String, Integer>
 		getActions().addAction(ActionFactory.createPopupMenuAction(new PopupMenuProvider() {
 
 			@Override
-			public JPopupMenu getPopupMenu(Widget widget, Point localLocation)
+			public JPopupMenu getPopupMenu(final Widget widget, Point localLocation)
 			{
 				final Point localPoint = localLocation;
 				JPopupMenu menu = new JPopupMenu("Menu");
@@ -47,6 +47,7 @@ public class DFSGraphScene extends GraphScene<String, Integer>
 					public void actionPerformed(ActionEvent e)
 					{
 						addNode("New place "+(new java.util.Date()).getTime()).setPreferredLocation(localPoint);
+						widget.getScene().validate();
 					}
 				});
 				createPlaceMenuItem.setText("Create place");
