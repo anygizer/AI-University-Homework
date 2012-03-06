@@ -46,7 +46,7 @@ public class DFSGraphScene extends GraphPinScene<String, Integer, String>
 		getActions().addAction(ActionFactory.createPopupMenuAction(new PopupMenuProvider() {
 
 			@Override
-			public JPopupMenu getPopupMenu(Widget widget, Point localLocation)
+			public JPopupMenu getPopupMenu(final Widget widget, Point localLocation)
 			{
 				final Point localPoint = localLocation;
 				JPopupMenu menu = new JPopupMenu("Menu");
@@ -60,10 +60,11 @@ public class DFSGraphScene extends GraphPinScene<String, Integer, String>
 						while(isObject(newName))
 						{
 							newName = NAME_TEMPLATE + newNameCounter++;
+							//newName = NAME_TEMPLATE + (new java.util.Date()).getTime();
 						}
 						addNode(newName).setPreferredLocation(localPoint);
 						addPin(newName, newName + " pin");
-						validate();
+						widget.getScene().validate();
 					}
 				});
 				jmi.setText("Create place");
