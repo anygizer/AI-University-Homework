@@ -1,6 +1,7 @@
 package imy.lnu.ai.dfs;
 
 import java.awt.Color;
+import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
@@ -13,7 +14,6 @@ import org.netbeans.api.visual.anchor.AnchorShape;
 import org.netbeans.api.visual.anchor.PointShape;
 import org.netbeans.api.visual.graph.GraphPinScene;
 import org.netbeans.api.visual.router.RouterFactory;
-import org.netbeans.api.visual.vmd.VMDConnectionWidget;
 import org.netbeans.api.visual.widget.*;
 import org.openide.util.Exceptions;
 
@@ -43,53 +43,68 @@ public class DFSGraphScene extends GraphPinScene<String, Integer, String>
 		this.addChild(connectionLayer);
 		this.addChild(interractionLayer);
 		
-		getActions().addAction(ActionFactory.createPopupMenuAction(new PopupMenuProvider() {
-
+		getActions().addAction(ActionFactory.createEditAction(new EditProvider() {
 			@Override
-			public JPopupMenu getPopupMenu(final Widget widget, Point localLocation)
+			public void edit(Widget widget)
 			{
-				final Point localPoint = localLocation;
-				JPopupMenu menu = new JPopupMenu("Menu");
-				JMenuItem jmi = new JMenuItem(new AbstractAction() {
-
-					@Override
-					public void actionPerformed(ActionEvent e)
-					{
-						String newName = NAME_TEMPLATE;
-						newNameCounter = 1;
-						while(isObject(newName))
-						{
-							newName = NAME_TEMPLATE + newNameCounter++;
-							//newName = NAME_TEMPLATE + (new java.util.Date()).getTime();
-						}
-						addNode(newName).setPreferredLocation(localPoint);
-						addPin(newName, newName + " pin");
-						widget.getScene().validate();
-					}
-				});
-				jmi.setText("Create place");
-				menu.add(jmi);
-				jmi = new JMenuItem(new AbstractAction() {
-
-					@Override
-					public void actionPerformed(ActionEvent e)
-					{
-						new Thread(new Runnable() {
-
-							@Override
-							public void run()
-							{
-								walkedTrough.clear();
-								search(startPlace);
-							}
-						}).start();
-					}
-				});
-				jmi.setText("Start");
-				menu.add(jmi);
-				return menu;
+				String newName = NAME_TEMPLATE;
+				newNameCounter = 1;
+				while(isObject(newName))
+				{
+					newName = NAME_TEMPLATE + newNameCounter++;
+				}
+					addNode(newName).setPreferredLocation(new Point(MouseInfo.getPointerInfo().getLocation().x-widget.getScene().getView().getLocationOnScreen().x-20, MouseInfo.getPointerInfo().getLocation().y-widget.getScene().getView().getLocationOnScreen().y-20));
+					addPin(newName, newName + " pin");
+					widget.getScene().validate();
 			}
 		}));
+//		getActions().addAction(ActionFactory.createPopupMenuAction(new PopupMenuProvider() {
+//
+//			@Override
+//			public JPopupMenu getPopupMenu(final Widget widget, Point localLocation)
+//			{
+//				final Point localPoint = localLocation;
+//				JPopupMenu menu = new JPopupMenu("Menu");
+//				JMenuItem jmi = new JMenuItem(new AbstractAction() {
+//
+//					@Override
+//					public void actionPerformed(ActionEvent e)
+//					{
+//						String newName = NAME_TEMPLATE;
+//						newNameCounter = 1;
+//						while(isObject(newName))
+//						{
+//							newName = NAME_TEMPLATE + newNameCounter++;
+//							//newName = NAME_TEMPLATE + (new java.util.Date()).getTime();
+//						}
+//						addNode(newName).setPreferredLocation(localPoint);
+//						addPin(newName, newName + " pin");
+//						widget.getScene().validate();
+//					}
+//				});
+//				jmi.setText("Create place");
+//				menu.add(jmi);
+//				jmi = new JMenuItem(new AbstractAction() {
+//
+//					@Override
+//					public void actionPerformed(ActionEvent e)
+//					{
+//						new Thread(new Runnable() {
+//
+//							@Override
+//							public void run()
+//							{
+//								walkedTrough.clear();
+//								search(startPlace);
+//							}
+//						}).start();
+//					}
+//				});
+//				jmi.setText("Start");
+//				menu.add(jmi);
+//				return menu;
+//			}
+//		}));
 	}
 	
 	private boolean search(String place)
@@ -183,7 +198,7 @@ public class DFSGraphScene extends GraphPinScene<String, Integer, String>
 				//RouterFactory.createDirectRouter()
 				RouterFactory.createOrthogonalSearchRouter(mainLayer, connectionLayer)
 						);
-		connection.setTargetAnchorShape(AnchorShape.TRIANGLE_FILLED);
+		connection.setTargetAnchorShape(AnchorShape.NONE);
 		connection.setEndPointShape(PointShape.NONE);
 		connection.getLabelWidget().setLabel("Input weight please");
 		
