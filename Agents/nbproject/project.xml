@@ -7,7 +7,7 @@
             <suite-component/>
             <module-dependencies>
                 <dependency>
-                    <code-name-base>org.unikernel.graph</code-name-base>
+                    <code-name-base>org.unikernel.lnu.ai.graph</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
