@@ -5,6 +5,8 @@ import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.TreeSet;
 import javax.swing.AbstractAction;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -58,13 +60,13 @@ public class DFSGraphScene extends GraphPinScene<String, Integer, String>
 					widget.getScene().validate();
 			}
 		}));
-//		getActions().addAction(ActionFactory.createPopupMenuAction(new PopupMenuProvider() {
-//
-//			@Override
-//			public JPopupMenu getPopupMenu(final Widget widget, Point localLocation)
-//			{
-//				final Point localPoint = localLocation;
-//				JPopupMenu menu = new JPopupMenu("Menu");
+		getActions().addAction(ActionFactory.createPopupMenuAction(new PopupMenuProvider() {
+
+			@Override
+			public JPopupMenu getPopupMenu(final Widget widget, Point localLocation)
+			{
+				final Point localPoint = localLocation;
+				JPopupMenu menu = new JPopupMenu("Menu");
 //				JMenuItem jmi = new JMenuItem(new AbstractAction() {
 //
 //					@Override
@@ -84,27 +86,27 @@ public class DFSGraphScene extends GraphPinScene<String, Integer, String>
 //				});
 //				jmi.setText("Create place");
 //				menu.add(jmi);
-//				jmi = new JMenuItem(new AbstractAction() {
-//
-//					@Override
-//					public void actionPerformed(ActionEvent e)
-//					{
-//						new Thread(new Runnable() {
-//
-//							@Override
-//							public void run()
-//							{
-//								walkedTrough.clear();
-//								search(startPlace);
-//							}
-//						}).start();
-//					}
-//				});
-//				jmi.setText("Start");
-//				menu.add(jmi);
-//				return menu;
-//			}
-//		}));
+				JMenuItem jmi = new JMenuItem(new AbstractAction() {
+
+					@Override
+					public void actionPerformed(ActionEvent e)
+					{
+						new Thread(new Runnable() {
+
+							@Override
+							public void run()
+							{
+								walkedTrough.clear();
+								search(startPlace);
+							}
+						}).start();
+					}
+				});
+				jmi.setText("Start");
+				menu.add(jmi);
+				return menu;
+			}
+		}));
 	}
 	
 	private boolean search(String place)
@@ -117,33 +119,86 @@ public class DFSGraphScene extends GraphPinScene<String, Integer, String>
 			Exceptions.printStackTrace(ex);
 		}
 		
-		walkedTrough.add(place);
-		if(place.equals(endPlace))
+		Nodee node = new Nodee(place, 0);
+		int cost = 0;
+		ArrayListt<Nodee> frontier = new ArrayListt<Nodee>();
+		frontier.add(node);
+		Set<Nodee> explored = new TreeSet<Nodee>();
+		while (!frontier.isEmpty())
 		{
-			//GOAL REACHED!!!
-			return true;
-		}
-		else
-		{
-			for(Integer i: findPinEdges(getNodePins(place).toArray()[0].toString(), true, false))
+			node=frontier.min();
+			frontier.remove(node);
+			if(node.prevEdge != null)
 			{
-				String nextNode = getPinNode(getEdgeTarget(i));
-				if(!walkedTrough.contains(nextNode))
+				((LabeledConnectionWidget) findWidget(node.prevEdge)).setLineColor(Color.RED);
+				((LabeledConnectionWidget) findWidget(node.prevEdge)).setForeground(Color.RED);
+			}
+			if(node.equals(new Nodee(endPlace, 0)))
+			{
+				paint(node);
+				validate();
+				return true;
+			}
+			explored.add(node);
+			for(Integer i: findPinEdges(getNodePins(node.name).toArray()[0].toString(), true, true))
+			{
+				String name = getPinNode(getEdgeTarget(i));
+				if(name.equals(node.name))	name = getPinNode(getEdgeSource(i));
+				Nodee nnode = new Nodee(name, node.value+Integer.parseInt(((LabeledConnectionWidget)findWidget(i)).getLabelWidget().getLabel()), node, i);
+				if(!explored.contains(nnode))
 				{
-					((LabeledConnectionWidget) findWidget(i)).setLineColor(Color.RED);
-					((LabeledConnectionWidget) findWidget(i)).setForeground(Color.RED);
-					if(search(nextNode))
+					((LabeledConnectionWidget) findWidget(i)).setLineColor(Color.ORANGE);
+					((LabeledConnectionWidget) findWidget(i)).setForeground(Color.ORANGE);
+					if(frontier.contains(nnode) &&
+					   frontier.get(frontier.indexOf(nnode)).compareTo(nnode)>0)
 					{
-						return true;
+						frontier.remove(nnode);
+						frontier.add(nnode);
 					}
 					else
-					{
-						((LabeledConnectionWidget) findWidget(i)).setLineColor(Color.ORANGE);
-						((LabeledConnectionWidget) findWidget(i)).setForeground(Color.ORANGE);
-					}
+						frontier.add(nnode);
 				}
 			}
-			return false;
+		}
+		return true;
+		
+//		walkedTrough.add(place);
+//		if(place.equals(endPlace))
+//		{
+//			//GOAL REACHED!!!
+//			return true;
+//		}
+//		else
+//		{
+//			for(Integer i: findPinEdges(getNodePins(place).toArray()[0].toString(), true, false))
+//			{
+//				String nextNode = getPinNode(getEdgeTarget(i));
+//				if(!walkedTrough.contains(nextNode))
+//				{
+//					((LabeledConnectionWidget) findWidget(i)).setLineColor(Color.RED);
+//					((LabeledConnectionWidget) findWidget(i)).setForeground(Color.RED);
+//					if(search(nextNode))
+//					{
+//						return true;
+//					}
+//					else
+//					{
+//						((LabeledConnectionWidget) findWidget(i)).setLineColor(Color.ORANGE);
+//						((LabeledConnectionWidget) findWidget(i)).setForeground(Color.ORANGE);
+//					}
+//				}
+//			}
+//			return false;
+//		}
+	}
+	
+	void paint(Nodee node)
+	{
+		if(node.prevNode!=null)
+		{
+			((LabeledConnectionWidget) findWidget(node.prevEdge)).setLineColor(Color.GREEN);
+			((LabeledConnectionWidget) findWidget(node.prevEdge)).setForeground(Color.GREEN);
+			paint(node.prevNode);
 		}
 	}
 
@@ -384,6 +439,65 @@ public class DFSGraphScene extends GraphPinScene<String, Integer, String>
 		public void setText(Widget widget, String text)
 		{
 			((LabelWidget) widget).setLabel(text);
+		}
+	}
+	
+	private class Nodee implements Comparable<Nodee>
+	{
+		public String name;
+		public Integer value;
+		public Nodee prevNode;
+		public Integer prevEdge;
+		@Override
+		public int compareTo(Nodee t)
+		{
+			return this.value.compareTo(t.value);
+		}
+		public Nodee(String name, Integer value)
+		{
+			this.name = name;
+			this.value = value;
+		}
+		
+		@Override
+		public boolean equals(Object param)
+		{
+			if(param.getClass().equals(Nodee.class) && this.name.equals(((Nodee)param).name))
+			{
+				return true;
+			}
+			return false;
+		}
+		
+		@Override
+		public int hashCode()
+		{
+			int hash = 3;
+			hash = 31 * hash + (this.name != null ? this.name.hashCode() : 0);
+			hash = 31 * hash + (this.value != null ? this.value.hashCode() : 0);
+			return hash;
+		}
+		public Nodee(String name, Integer value, Nodee prevNode, Integer prevEdge)
+		{
+			this.name = name;
+			this.value = value;
+			this.prevNode = prevNode;
+			this.prevEdge = prevEdge;
+		}
+		
+		
+		
+	}
+	
+	private class ArrayListt<E extends Comparable> extends ArrayList<E>
+	{
+		public E min()
+		{
+			E min = this.get(0);
+			for (E i : this)
+				if (i.compareTo(min) < 0)
+					min = i;
+			return min;
 		}
 	}
 }
