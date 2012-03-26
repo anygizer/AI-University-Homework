@@ -4,9 +4,12 @@ import java.awt.Color;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.Collection;
 import javax.swing.AbstractAction;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -17,13 +20,16 @@ import org.netbeans.api.visual.anchor.PointShape;
 import org.netbeans.api.visual.graph.GraphPinScene;
 import org.netbeans.api.visual.router.RouterFactory;
 import org.netbeans.api.visual.widget.*;
-import org.openide.util.Exceptions;
+import org.unikernel.lnu.ai.graph.Graph;
+import org.unikernel.lnu.ai.graph.Vertex;
+import org.unikernel.lnu.ai.agents.Algorithm;
+import org.unikernel.lnu.ai.agents.DFS;
 
 /**
  *
  * @author mcangel
  */
-public class DFSGraphScene extends GraphPinScene<String, Integer, String>
+public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implements PropertyChangeListener
 {
 	private LayerWidget mainLayer = new LayerWidget(this);
 	private LayerWidget connectionLayer = new LayerWidget(this);
@@ -33,14 +39,17 @@ public class DFSGraphScene extends GraphPinScene<String, Integer, String>
 	private WidgetAction reconnetAction = ActionFactory.createReconnectAction(new SceneReconnectProvider());
 	private WidgetAction editorAction = ActionFactory.createInplaceEditorAction(new LabelTextFieldEditor());
 	private final static String NAME_TEMPLATE = "Place";
-	private long newNameCounter;
-	
-	private String startPlace;
-	private String endPlace;
-	private ArrayList<String> walkedTrough = new ArrayList<String>();
+	private long newNameCounter = 1;
+	private Graph g;
+	private Algorithm alg;
 
 	public DFSGraphScene()
 	{
+		g = new Graph();
+		g.addPropertyChangeListener(this);
+		
+		alg = new DFS(g);
+		
 		this.addChild(mainLayer);
 		this.addChild(connectionLayer);
 		this.addChild(interractionLayer);
@@ -50,14 +59,9 @@ public class DFSGraphScene extends GraphPinScene<String, Integer, String>
 			public void edit(Widget widget)
 			{
 				String newName = NAME_TEMPLATE;
-				newNameCounter = 1;
-				while(isObject(newName))
-				{
-					newName = NAME_TEMPLATE + newNameCounter++;
-				}
-					addNode(newName).setPreferredLocation(new Point(MouseInfo.getPointerInfo().getLocation().x-widget.getScene().getView().getLocationOnScreen().x-20, MouseInfo.getPointerInfo().getLocation().y-widget.getScene().getView().getLocationOnScreen().y-20));
-					addPin(newName, newName + " pin");
-					widget.getScene().validate();
+				newName = NAME_TEMPLATE + newNameCounter++;
+				g.addVertex(new Vertex(newName, new Point(MouseInfo.getPointerInfo().getLocation().x-widget.getScene().getView().getLocationOnScreen().x-20, MouseInfo.getPointerInfo().getLocation().y-widget.getScene().getView().getLocationOnScreen().y-20)));
+				widget.getScene().validate();
 			}
 		}));
 		getActions().addAction(ActionFactory.createPopupMenuAction(new PopupMenuProvider() {
@@ -91,13 +95,24 @@ public class DFSGraphScene extends GraphPinScene<String, Integer, String>
 					@Override
 					public void actionPerformed(ActionEvent e)
 					{
+						g.addVertex(new Vertex(NAME_TEMPLATE + newNameCounter++, localPoint));
+					}
+				});
+				jmi.setText("Create place");
+				menu.add(jmi);
+				jmi = new JMenuItem(new AbstractAction() {
+
+					@Override
+					public void actionPerformed(ActionEvent e)
+					{
 						new Thread(new Runnable() {
 
 							@Override
 							public void run()
 							{
-								walkedTrough.clear();
-								search(startPlace);
+								Object[] way = alg.search().toArray();
+								drawWay(alg.getWalkedTrough().toArray(), Color.orange);
+								drawWay(way, Color.red);
 							}
 						}).start();
 					}
@@ -108,59 +123,34 @@ public class DFSGraphScene extends GraphPinScene<String, Integer, String>
 			}
 		}));
 	}
-	
-	private boolean search(String place)
+
+	private String getNodeFirstPin(Vertex node)
 	{
-		try
+		return (String)(getNodePins(node).toArray()[0]);
+	}
+	
+	private Integer findFirstEdgeBetween(String sourcePin, String targetPin)
+	{
+		Collection<Integer> edgesBetween = findEdgesBetween(sourcePin, targetPin);
+		if(edgesBetween.isEmpty())
 		{
-			Thread.sleep(1000);
-		} catch (InterruptedException ex)
-		{
-			Exceptions.printStackTrace(ex);
+			return null;
 		}
-		
-		Nodee node = new Nodee(place, 0);
-		int cost = 0;
-		ArrayListt<Nodee> frontier = new ArrayListt<Nodee>();
-		frontier.add(node);
-		Set<Nodee> explored = new TreeSet<Nodee>();
-		while (!frontier.isEmpty())
+		return (Integer)(edgesBetween.toArray()[0]);
+	}
+	
+	private void drawWay(Object[] way, Color color)
+	{
+		for (int i = 0; i < way.length - 1; i++)
 		{
-			node=frontier.min();
-			frontier.remove(node);
-			if(node.prevEdge != null)
+			Integer edge = findFirstEdgeBetween(
+					getNodeFirstPin((Vertex) way[i]),
+					getNodeFirstPin((Vertex) way[i + 1]));
+			if(edge != null)
 			{
-				((LabeledConnectionWidget) findWidget(node.prevEdge)).setLineColor(Color.RED);
-				((LabeledConnectionWidget) findWidget(node.prevEdge)).setForeground(Color.RED);
-			}
-			if(node.equals(new Nodee(endPlace, 0)))
-			{
-				paint(node);
-				validate();
-				return true;
-			}
-			explored.add(node);
-			for(Integer i: findPinEdges(getNodePins(node.name).toArray()[0].toString(), true, true))
-			{
-				String name = getPinNode(getEdgeTarget(i));
-				if(name.equals(node.name))	name = getPinNode(getEdgeSource(i));
-				Nodee nnode = new Nodee(name, node.value+Integer.parseInt(((LabeledConnectionWidget)findWidget(i)).getLabelWidget().getLabel()), node, i);
-				if(!explored.contains(nnode))
-				{
-					((LabeledConnectionWidget) findWidget(i)).setLineColor(Color.ORANGE);
-					((LabeledConnectionWidget) findWidget(i)).setForeground(Color.ORANGE);
-					if(frontier.contains(nnode) &&
-					   frontier.get(frontier.indexOf(nnode)).compareTo(nnode)>0)
-					{
-						frontier.remove(nnode);
-						frontier.add(nnode);
-					}
-					else
-						frontier.add(nnode);
-				}
+				findWidget(edge).setForeground(color);
 			}
 		}
-		return true;
 		
 //		walkedTrough.add(place);
 //		if(place.equals(endPlace))
@@ -192,21 +182,11 @@ public class DFSGraphScene extends GraphPinScene<String, Integer, String>
 //		}
 	}
 	
-	void paint(Nodee node)
-	{
-		if(node.prevNode!=null)
-		{
-			((LabeledConnectionWidget) findWidget(node.prevEdge)).setLineColor(Color.GREEN);
-			((LabeledConnectionWidget) findWidget(node.prevEdge)).setForeground(Color.GREEN);
-			paint(node.prevNode);
-		}
-	}
-
 	@Override
-	protected Widget attachNodeWidget(String node)
+	protected Widget attachNodeWidget(Vertex node)
 	{
 		PlaceWidget widget = new PlaceWidget(this);
-		widget.getLabelWidget().setLabel(node);
+		widget.getLabelWidget().setLabel(node.getLabel());
 		
 		widget.getLabelWidget().getActions().addAction(editorAction);
 		widget.getActions().addAction(createSelectAction());
@@ -223,7 +203,7 @@ public class DFSGraphScene extends GraphPinScene<String, Integer, String>
 					@Override
 					public void actionPerformed(ActionEvent e)
 					{
-						startPlace = (String) findObject(w);
+						alg.setStartVertex((Vertex) findObject(w));
 					}
 				});
 				jmi.setText("Set as starting place");
@@ -233,7 +213,7 @@ public class DFSGraphScene extends GraphPinScene<String, Integer, String>
 					@Override
 					public void actionPerformed(ActionEvent e)
 					{
-						endPlace = (String) findObject(w);
+						alg.setEndVertex((Vertex) findObject(w));
 					}
 				});
 				jmi.setText("Set as ending place");
@@ -253,9 +233,10 @@ public class DFSGraphScene extends GraphPinScene<String, Integer, String>
 				//RouterFactory.createDirectRouter()
 				RouterFactory.createOrthogonalSearchRouter(mainLayer, connectionLayer)
 						);
+		connection.setSourceAnchorShape(AnchorShape.NONE);
 		connection.setTargetAnchorShape(AnchorShape.NONE);
 		connection.setEndPointShape(PointShape.NONE);
-		connection.getLabelWidget().setLabel("Input weight please");
+		//connection.getLabelWidget().setLabel("Input weight please");
 		
 		connection.getActions().addAction(createObjectHoverAction());
 		//double-click, the event is consumed while double-clicking only:
@@ -287,7 +268,7 @@ public class DFSGraphScene extends GraphPinScene<String, Integer, String>
 	}
 
 	@Override
-	protected Widget attachPinWidget(String node, String pin)
+	protected Widget attachPinWidget(Vertex node, String pin)
 	{
 		PlacePinWidget widget = new PlacePinWidget(this);
 		((PlaceWidget) findWidget(node)).attachPinWidget(widget);
@@ -297,6 +278,18 @@ public class DFSGraphScene extends GraphPinScene<String, Integer, String>
 		widget.getActions().addAction(connectAction);
 
 		return widget;
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		if (Graph.PROP_VERT_ADDED.equals(evt.getPropertyName()))
+		{
+			Vertex v = (Vertex) evt.getNewValue();
+			addNode(v).setPreferredLocation(v.getPreferredLocation());
+			addPin(v, v.getLabel() + " pin");
+			validate();
+		}
 	}
 
 //TODO: add connection weight prompter
@@ -340,6 +333,7 @@ public class DFSGraphScene extends GraphPinScene<String, Integer, String>
 		@Override
 		public void createConnection(Widget sourceWidget, Widget targetWidget)
 		{
+			g.connectVertices(getPinNode(source), getPinNode(target), edgeCounter);
 			Integer edge = new Integer(edgeCounter++);
 			addEdge(edge);
 			setEdgeSource(edge, source);

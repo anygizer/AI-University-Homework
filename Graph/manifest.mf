@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.unikernel.lnu.ai.graph
+OpenIDE-Module-Localizing-Bundle: org/unikernel/lnu/ai/graph/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
