@@ -24,6 +24,7 @@ import org.unikernel.lnu.ai.graph.Graph;
 import org.unikernel.lnu.ai.graph.Vertex;
 import org.unikernel.lnu.ai.agents.Algorithm;
 import org.unikernel.lnu.ai.agents.DFS;
+import org.unikernel.lnu.ai.agents.UniformCostSearch;
 
 /**
  *
@@ -48,7 +49,7 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 		g = new Graph();
 		g.addPropertyChangeListener(this);
 		
-		alg = new DFS(g);
+		alg = new UniformCostSearch(g);
 		
 		this.addChild(mainLayer);
 		this.addChild(connectionLayer);
@@ -71,36 +72,8 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 			{
 				final Point localPoint = localLocation;
 				JPopupMenu menu = new JPopupMenu("Menu");
-//				JMenuItem jmi = new JMenuItem(new AbstractAction() {
-//
-//					@Override
-//					public void actionPerformed(ActionEvent e)
-//					{
-//						String newName = NAME_TEMPLATE;
-//						newNameCounter = 1;
-//						while(isObject(newName))
-//						{
-//							newName = NAME_TEMPLATE + newNameCounter++;
-//							//newName = NAME_TEMPLATE + (new java.util.Date()).getTime();
-//						}
-//						addNode(newName).setPreferredLocation(localPoint);
-//						addPin(newName, newName + " pin");
-//						widget.getScene().validate();
-//					}
-//				});
-//				jmi.setText("Create place");
-//				menu.add(jmi);
-				JMenuItem jmi = new JMenuItem(new AbstractAction() {
 
-					@Override
-					public void actionPerformed(ActionEvent e)
-					{
-						g.addVertex(new Vertex(NAME_TEMPLATE + newNameCounter++, localPoint));
-					}
-				});
-				jmi.setText("Create place");
-				menu.add(jmi);
-				jmi = new JMenuItem(new AbstractAction() {
+				JMenuItem jmi = new JMenuItem(new AbstractAction() {
 
 					@Override
 					public void actionPerformed(ActionEvent e)
@@ -151,35 +124,6 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 				findWidget(edge).setForeground(color);
 			}
 		}
-		
-//		walkedTrough.add(place);
-//		if(place.equals(endPlace))
-//		{
-//			//GOAL REACHED!!!
-//			return true;
-//		}
-//		else
-//		{
-//			for(Integer i: findPinEdges(getNodePins(place).toArray()[0].toString(), true, false))
-//			{
-//				String nextNode = getPinNode(getEdgeTarget(i));
-//				if(!walkedTrough.contains(nextNode))
-//				{
-//					((LabeledConnectionWidget) findWidget(i)).setLineColor(Color.RED);
-//					((LabeledConnectionWidget) findWidget(i)).setForeground(Color.RED);
-//					if(search(nextNode))
-//					{
-//						return true;
-//					}
-//					else
-//					{
-//						((LabeledConnectionWidget) findWidget(i)).setLineColor(Color.ORANGE);
-//						((LabeledConnectionWidget) findWidget(i)).setForeground(Color.ORANGE);
-//					}
-//				}
-//			}
-//			return false;
-//		}
 	}
 	
 	@Override
@@ -481,17 +425,5 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 		
 		
 		
-	}
-	
-	private class ArrayListt<E extends Comparable> extends ArrayList<E>
-	{
-		public E min()
-		{
-			E min = this.get(0);
-			for (E i : this)
-				if (i.compareTo(min) < 0)
-					min = i;
-			return min;
-		}
 	}
 }
