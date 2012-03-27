@@ -1,9 +1,6 @@
 package org.unikernel.lnu.ai.agents;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import org.unikernel.lnu.ai.graph.Graph;
 import org.unikernel.lnu.ai.graph.Vertex;
 
@@ -16,7 +13,7 @@ public abstract class Algorithm
 	Graph graph;
 	Vertex startVertex;
 	Vertex endVertex;
-	protected ArrayList<Vertex> walkedTrough = new ArrayList<Vertex>();
+	protected Set<Vertex> walkedTrough = new TreeSet<Vertex>();
 	protected ArrayList<Vertex> resultingWay = new ArrayList<Vertex>();
 
 	public Algorithm(Graph graph)
@@ -33,9 +30,9 @@ public abstract class Algorithm
 		this.endVertex = endVertex;
 	}
 
-	public List<Vertex> getWalkedTrough()
+	public Set<Vertex> getWalkedTrough()
 	{
-		return Collections.unmodifiableList(walkedTrough);
+		return Collections.unmodifiableSet(walkedTrough);
 	}
 
 	public List<Vertex> getResultingWay()
