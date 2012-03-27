@@ -36,6 +36,10 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 	private WidgetAction connectAction = ActionFactory.createConnectAction(interractionLayer, new SceneConnectProvider());
 	private WidgetAction reconnetAction = ActionFactory.createReconnectAction(new SceneReconnectProvider());
 	private WidgetAction labelEditorAction = ActionFactory.createInplaceEditorAction(new LabelTextFieldEditor());
+	private WidgetAction hardcodedHeuristicsEditorAction = ActionFactory
+			.createInplaceEditorAction(new HardcodedHeuristicsEditor());
+	private WidgetAction hardcodedConnectionWeightEditorAction = ActionFactory
+			.createInplaceEditorAction(new HardcodedConnectionWeightEditor());
 	private final static String NAME_TEMPLATE = "Place";
 	private long newNameCounter = 1;
 	private Graph g;
@@ -127,8 +131,10 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 	{
 		PlaceWidget widget = new PlaceWidget(this);
 		widget.getLabelWidget().setLabel(node.getLabel());
+		widget.getHeuristicsWidget().setLabel(String.valueOf(((HeuristicsVertex)node).getHeuristics()));
 		
 		widget.getLabelWidget().getActions().addAction(labelEditorAction);
+		widget.getHeuristicsWidget().getActions().addAction(hardcodedHeuristicsEditorAction);
 		widget.getActions().addAction(createSelectAction());
 		widget.getActions().addAction(ActionFactory.createMoveAction());
 		widget.getActions().addAction(ActionFactory.createPopupMenuAction(new PopupMenuProvider() {
@@ -180,7 +186,7 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 		
 		connection.getActions().addAction(createObjectHoverAction());
 		//double-click, the event is consumed while double-clicking only:
-		connection.getLabelWidget().getActions().addAction(labelEditorAction);
+		connection.getLabelWidget().getActions().addAction(hardcodedConnectionWeightEditorAction);
 		//single-click, the event is not consumed:
 		connection.getActions().addAction(createSelectAction());
 		//mouse-dragged, the event is consumed while mouse is dragged:
@@ -273,9 +279,9 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 		@Override
 		public void createConnection(Widget sourceWidget, Widget targetWidget)
 		{
-			g.connectVertices(getPinNode(source), getPinNode(target), edgeCounter);
+			g.connectVertices(getPinNode(source), getPinNode(target), 1);
 			Integer edge = new Integer(edgeCounter++);
-			addEdge(edge);
+			((LabeledConnectionWidget)addEdge(edge)).getLabelWidget().setLabel(String.valueOf(1));
 			setEdgeSource(edge, source);
 			setEdgeTarget(edge, target);
 		}
@@ -372,6 +378,54 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 		@Override
 		public void setText(Widget widget, String text)
 		{
+			((LabelWidget) widget).setLabel(text);
+		}
+	}
+	
+	private class HardcodedHeuristicsEditor implements TextFieldInplaceEditor
+	{
+
+		@Override
+		public boolean isEnabled(Widget widget)
+		{
+			return true;
+		}
+
+		@Override
+		public String getText(Widget widget)
+		{
+			return ((LabelWidget) widget).getLabel();
+		}
+
+		@Override
+		public void setText(Widget widget, String text)
+		{
+			((HeuristicsVertex)findObject(((LabelWidget) widget).getParentWidget()))
+					.setHeuristics(Integer.parseInt(text));
+			((LabelWidget) widget).setLabel(text);
+		}
+	}
+	
+	private class HardcodedConnectionWeightEditor implements TextFieldInplaceEditor
+	{
+		@Override
+		public boolean isEnabled(Widget widget)
+		{
+			return true;
+		}
+
+		@Override
+		public String getText(Widget widget)
+		{
+			return ((LabelWidget) widget).getLabel();
+		}
+
+		@Override
+		public void setText(Widget widget, String text)
+		{
+			Vertex source = getPinNode(getEdgeSource((Integer)findObject(widget)));
+			Vertex target = getPinNode(getEdgeTarget((Integer)findObject(widget)));
+			g.setWeightBetween(source, target, Integer.parseInt(text));
 			((LabelWidget) widget).setLabel(text);
 		}
 	}

@@ -135,6 +135,11 @@ public class Graph
 		return connections.get(findConnectionBetween(sourceVertex, targetVertex));
 	}
 	
+	public void setWeightBetween(Vertex sourceVertex, Vertex targetVertex, double weight)
+	{
+		connections.put(findConnectionBetween(sourceVertex, targetVertex), weight);
+	}
+	
 	private Connection findConnectionBetween(Vertex sourceVertex, Vertex targetVertex)
 	{
 		for(Connection i : VertexConnections.get(sourceVertex))
