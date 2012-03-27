@@ -27,6 +27,10 @@ public class IDAStar extends Algorithm
 	@Override
 	public Collection<Vertex> search()
 	{
+		if(startVertex == null || endVertex == null)
+		{
+			return null;
+		}
 //		cost_limit = heuristics[rootNode]
 // 
 //        while True:
@@ -83,7 +87,7 @@ public class IDAStar extends Algorithm
 			DFSSearchResult sol = dfsSearch(newStartCost, (HeuristicsVertex)i, costLimit);
 			if(sol.isSolution())
 			{
-				resultingWay.add(i);
+				resultingWay.add(0, currentVertex);
 				return sol;
 			}
 			nextCostLimit = Math.min(nextCostLimit, sol.getCostLimit());
