@@ -13,7 +13,7 @@ public abstract class Algorithm
 	Graph graph;
 	Vertex startVertex;
 	Vertex endVertex;
-	protected Set<Vertex> walkedTrough = new TreeSet<Vertex>();
+	protected Set<Vertex> walkedTrough = new HashSet<Vertex>();
 	protected ArrayList<Vertex> resultingWay = new ArrayList<Vertex>();
 
 	public Algorithm(Graph graph)

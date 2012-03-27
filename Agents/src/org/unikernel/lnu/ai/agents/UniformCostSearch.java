@@ -18,7 +18,7 @@ public class UniformCostSearch extends Algorithm
 {
 	
 	private MinimumArrayList<HeuristicsVertex> frontier = new MinimumArrayList<HeuristicsVertex>();
-	private Map<HeuristicsVertex, HeuristicsVertex> movementMap = new TreeMap<HeuristicsVertex, HeuristicsVertex>();
+	private Map<HeuristicsVertex, HeuristicsVertex> movementMap = new HashMap<HeuristicsVertex, HeuristicsVertex>();
 	
 	public UniformCostSearch(Graph graph)
 	{
@@ -57,6 +57,7 @@ public class UniformCostSearch extends Algorithm
 					walker = movementMap.get(walker);
 				}
 				while(movementMap.containsKey(walker));
+				resultingWay.add(walker);
 				Collections.reverse(resultingWay);
 				return true;
 			}
@@ -70,7 +71,7 @@ public class UniformCostSearch extends Algorithm
 					if(!frontier.contains(nextHeuristicsVertex))
 					{
 						nextHeuristicsVertex.setHeuristics(pathWaightToNextVertex);
-						movementMap.put(currentVertex, nextHeuristicsVertex);
+						movementMap.put(nextHeuristicsVertex, currentVertex);
 						frontier.add(nextHeuristicsVertex);
 					}
 					else
@@ -78,7 +79,7 @@ public class UniformCostSearch extends Algorithm
 						if(nextHeuristicsVertex.getHeuristics()>pathWaightToNextVertex)
 						{
 							nextHeuristicsVertex.setHeuristics(pathWaightToNextVertex);
-							movementMap.put(currentVertex, nextHeuristicsVertex);
+							movementMap.put(nextHeuristicsVertex, currentVertex);
 						}
 					}
 				}

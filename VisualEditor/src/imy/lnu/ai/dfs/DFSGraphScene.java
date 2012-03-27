@@ -25,6 +25,7 @@ import org.unikernel.lnu.ai.graph.Vertex;
 import org.unikernel.lnu.ai.agents.Algorithm;
 import org.unikernel.lnu.ai.agents.DFS;
 import org.unikernel.lnu.ai.agents.UniformCostSearch;
+import org.unikernel.lnu.ai.graph.HeuristicsVertex;
 
 /**
  *
@@ -61,7 +62,7 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 			{
 				String newName = NAME_TEMPLATE;
 				newName = NAME_TEMPLATE + newNameCounter++;
-				g.addVertex(new Vertex(newName, new Point(MouseInfo.getPointerInfo().getLocation().x-widget.getScene().getView().getLocationOnScreen().x-20, MouseInfo.getPointerInfo().getLocation().y-widget.getScene().getView().getLocationOnScreen().y-20)));
+				g.addVertex(new HeuristicsVertex(newName, new Point(MouseInfo.getPointerInfo().getLocation().x-widget.getScene().getView().getLocationOnScreen().x-20, MouseInfo.getPointerInfo().getLocation().y-widget.getScene().getView().getLocationOnScreen().y-20)));
 				widget.getScene().validate();
 			}
 		}));
