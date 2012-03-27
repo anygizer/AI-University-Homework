@@ -40,6 +40,18 @@ public class Graph
 		this.pcs.firePropertyChange(PROP_VERT_ADDED, null, vertex);
 	}
 	
+	/**
+	 * Adds as many new vertices to the graph as provided.
+	 * @param vertices Vertex'es to add to the graph.
+	 */
+	public void addVertices(Vertex... vertices)
+	{
+		for(Vertex i : vertices)
+		{
+			addVertex(i);
+		}
+	}
+	
 	public void removeVertex(Vertex vertex)
 	{
 		for (Connection i : VertexConnections.get(vertex))
