@@ -21,6 +21,7 @@ import org.unikernel.lnu.ai.graph.Graph;
 import org.unikernel.lnu.ai.graph.Vertex;
 import org.unikernel.lnu.ai.agents.Algorithm;
 import org.unikernel.lnu.ai.agents.DFS;
+import org.unikernel.lnu.ai.graph.HeuristicsVertex;
 
 /**
  *
@@ -34,7 +35,7 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 	private int edgeCounter = 0;
 	private WidgetAction connectAction = ActionFactory.createConnectAction(interractionLayer, new SceneConnectProvider());
 	private WidgetAction reconnetAction = ActionFactory.createReconnectAction(new SceneReconnectProvider());
-	private WidgetAction editorAction = ActionFactory.createInplaceEditorAction(new LabelTextFieldEditor());
+	private WidgetAction labelEditorAction = ActionFactory.createInplaceEditorAction(new LabelTextFieldEditor());
 	private final static String NAME_TEMPLATE = "Place";
 	private long newNameCounter = 1;
 	private Graph g;
@@ -63,7 +64,7 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 					@Override
 					public void actionPerformed(ActionEvent e)
 					{
-						g.addVertex(new Vertex(NAME_TEMPLATE + newNameCounter++, localPoint));
+						g.addVertex(new HeuristicsVertex(1, NAME_TEMPLATE + newNameCounter++, localPoint));
 					}
 				});
 				jmi.setText("Create place");
@@ -127,7 +128,7 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 		PlaceWidget widget = new PlaceWidget(this);
 		widget.getLabelWidget().setLabel(node.getLabel());
 		
-		widget.getLabelWidget().getActions().addAction(editorAction);
+		widget.getLabelWidget().getActions().addAction(labelEditorAction);
 		widget.getActions().addAction(createSelectAction());
 		widget.getActions().addAction(ActionFactory.createMoveAction());
 		widget.getActions().addAction(ActionFactory.createPopupMenuAction(new PopupMenuProvider() {
@@ -179,7 +180,7 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 		
 		connection.getActions().addAction(createObjectHoverAction());
 		//double-click, the event is consumed while double-clicking only:
-		connection.getLabelWidget().getActions().addAction(editorAction);
+		connection.getLabelWidget().getActions().addAction(labelEditorAction);
 		//single-click, the event is not consumed:
 		connection.getActions().addAction(createSelectAction());
 		//mouse-dragged, the event is consumed while mouse is dragged:
