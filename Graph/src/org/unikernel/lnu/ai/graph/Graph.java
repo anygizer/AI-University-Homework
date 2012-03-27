@@ -118,6 +118,23 @@ public class Graph
 		return connectedVertices;
 	}
 	
+	public double getWeightBetween(Vertex sourceVertex, Vertex targetVertex)
+	{
+		return connections.get(findConnectionBetween(sourceVertex, targetVertex));
+	}
+	
+	private Connection findConnectionBetween(Vertex sourceVertex, Vertex targetVertex)
+	{
+		for(Connection i : VertexConnections.get(sourceVertex))
+		{
+			if(i.getOtherVertex(sourceVertex).equals(targetVertex))
+			{
+				return i;
+			}
+		}
+		return null;
+	}
+	
 	private class Connection
 	{
 		private Vertex firstVertex;
