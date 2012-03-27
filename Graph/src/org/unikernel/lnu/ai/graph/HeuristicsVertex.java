@@ -6,7 +6,7 @@ import java.awt.Point;
  *
  * @author mcangel
  */
-public class HeuristicsVertex extends Vertex
+public class HeuristicsVertex extends Vertex implements Comparable<HeuristicsVertex>
 {
 	private int heuristics;
 
@@ -49,5 +49,11 @@ public class HeuristicsVertex extends Vertex
 	public void setHeuristics(int heuristics)
 	{
 		this.heuristics = heuristics;
+	}
+	
+	@Override
+	public int compareTo(HeuristicsVertex t)
+	{
+		return this.heuristics-t.getHeuristics();
 	}
 }
