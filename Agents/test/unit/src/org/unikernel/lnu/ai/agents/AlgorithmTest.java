@@ -1,12 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.unikernel.lnu.ai.agents;
 
 import java.util.Collection;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import org.junit.*;
-import static org.junit.Assert.*;
 import org.unikernel.lnu.ai.graph.Vertex;
 
 /**
@@ -75,9 +72,9 @@ public class AlgorithmTest
 	{
 		System.out.println("step");
 		Algorithm instance = null;
-		Vertex[] expResult = null;
-		Vertex[] result = instance.step();
-		assertArrayEquals(expResult, result);
+		Algorithm.StepResult expResult = null;
+		Algorithm.StepResult result = instance.step();
+		assertEquals(expResult, result);
 		// TODO review the generated test code and remove the default call to fail.
 		fail("The test case is a prototype.");
 	}
@@ -105,7 +102,7 @@ public class AlgorithmTest
 		}
 
 		@Override
-		public Vertex[] step()
+		public StepResult step()
 		{
 			return null;
 		}

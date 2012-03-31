@@ -142,6 +142,10 @@ public class Graph
 	
 	private Connection findConnectionBetween(Vertex sourceVertex, Vertex targetVertex)
 	{
+		if(sourceVertex == null || targetVertex == null)
+		{
+			return  null;
+		}
 		for(Connection i : VertexConnections.get(sourceVertex))
 		{
 			if(i.getOtherVertex(sourceVertex).equals(targetVertex))
@@ -150,6 +154,11 @@ public class Graph
 			}
 		}
 		return null;
+	}
+	
+	public boolean areConnected(Vertex sourceVertex, Vertex targetVertex)
+	{
+		return findConnectionBetween(sourceVertex, targetVertex) != null;
 	}
 	
 	private class Connection

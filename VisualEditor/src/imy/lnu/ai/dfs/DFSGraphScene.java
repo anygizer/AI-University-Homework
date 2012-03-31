@@ -21,6 +21,7 @@ import org.unikernel.lnu.ai.graph.Graph;
 import org.unikernel.lnu.ai.graph.Vertex;
 import org.unikernel.lnu.ai.agents.Algorithm;
 import org.unikernel.lnu.ai.agents.DFS;
+import org.unikernel.lnu.ai.agents.IDAStar;
 import org.unikernel.lnu.ai.graph.HeuristicsVertex;
 
 /**
@@ -51,6 +52,7 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 		g.addPropertyChangeListener(this);
 		
 		alg = new DFS(g);
+//		alg = new IDAStar(g);
 		
 		this.addChild(mainLayer);
 		this.addChild(connectionLayer);
@@ -90,7 +92,34 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 						}).start();
 					}
 				});
-				jmi.setText("Start");
+				jmi.setText("Start search");
+				menu.add(jmi);
+				jmi = new JMenuItem(new AbstractAction() {
+
+					@Override
+					public void actionPerformed(ActionEvent e)
+					{
+						new Thread(new Runnable() {
+
+							@Override
+							public void run()
+							{
+								Algorithm.StepResult res = alg.step();
+								if(res == null)
+								{
+									return;
+								}
+								Color color = Color.red;
+								if(res.backtracking)
+								{
+									color = Color.orange;
+								}
+								drawWay(res.stepPath.toArray(), color);
+							}
+						}).start();
+					}
+				});
+				jmi.setText("Search step");
 				menu.add(jmi);
 				return menu;
 			}
@@ -99,12 +128,20 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 
 	private String getNodeFirstPin(Vertex node)
 	{
-		return (String)(getNodePins(node).toArray()[0]);
+		return node == null ? null : (String)(getNodePins(node).toArray()[0]);
 	}
 	
 	private Integer findFirstEdgeBetween(String sourcePin, String targetPin)
 	{
+		if(sourcePin == null || targetPin == null)
+		{
+			return null;
+		}
 		Collection<Integer> edgesBetween = findEdgesBetween(sourcePin, targetPin);
+		if(edgesBetween.isEmpty())
+		{//bidirectional
+			edgesBetween = findEdgesBetween(targetPin, sourcePin);
+		}
 		if(edgesBetween.isEmpty())
 		{
 			return null;

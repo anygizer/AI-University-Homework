@@ -43,6 +43,29 @@ public abstract class Algorithm
 		return Collections.unmodifiableList(resultingWay);
 	}
 
-	public abstract Vertex[] step();
+	public abstract StepResult step();
 	public abstract Collection<Vertex> search();
+	
+	public class StepResult
+	{
+		public boolean goalReached = false;
+		public boolean backtracking = false;
+		/**
+		 * List of the current step start and end Vertices.
+		 */
+		public List<Vertex> stepPath = new ArrayList<Vertex>(2);
+
+		public StepResult()
+		{
+		}
+		
+		public StepResult(boolean goalReached, boolean backtracking, 
+				Vertex stepStartVertex, Vertex stepEndVertex)
+		{
+			this.goalReached = goalReached;
+			this.backtracking = backtracking;
+			stepPath.add(stepStartVertex);
+			stepPath.add(stepEndVertex);
+		}
+	}
 }

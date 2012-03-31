@@ -1,6 +1,5 @@
 package org.unikernel.lnu.ai.agents;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import org.unikernel.lnu.ai.graph.Graph;
@@ -19,7 +18,7 @@ public class IDAStar extends Algorithm
 	}
 	
 	@Override
-	public Vertex[] step()
+	public StepResult step()
 	{
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
