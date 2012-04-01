@@ -76,7 +76,7 @@ public class Graph
 	 * @param secondVertex second vertex
 	 * @param weight a weight of the connection
 	 */
-	public void connectVertices(Vertex firstVertex, Vertex secondVertex, double weight)
+	public Connection connectVertices(Vertex firstVertex, Vertex secondVertex, double weight)
 	{
 		//if the specified elements are in the circuit
 		if (vertices.contains(firstVertex) && vertices.contains(secondVertex))
@@ -98,7 +98,9 @@ public class Graph
 			}
 			VertexConnections.get(firstVertex).add(conn);
 			VertexConnections.get(secondVertex).add(conn);
+			return conn;
 		}
+		return null;
 	}
 
 	/**
@@ -144,7 +146,7 @@ public class Graph
 		connections.put(findConnectionBetween(sourceVertex, targetVertex), weight);
 	}
 	
-	private Connection findConnectionBetween(Vertex sourceVertex, Vertex targetVertex)
+	public Connection findConnectionBetween(Vertex sourceVertex, Vertex targetVertex)
 	{
 		if(sourceVertex == null || targetVertex == null)
 		{
@@ -165,7 +167,7 @@ public class Graph
 		return findConnectionBetween(sourceVertex, targetVertex) != null;
 	}
 	
-	private class Connection
+	public class Connection
 	{
 		private Vertex firstVertex;
 		private Vertex secondVertex;

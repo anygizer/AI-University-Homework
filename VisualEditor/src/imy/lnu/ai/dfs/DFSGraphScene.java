@@ -5,8 +5,9 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -15,14 +16,14 @@ import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.anchor.AnchorShape;
 import org.netbeans.api.visual.anchor.PointShape;
 import org.netbeans.api.visual.graph.GraphPinScene;
+import org.netbeans.api.visual.model.ObjectState;
 import org.netbeans.api.visual.router.RouterFactory;
 import org.netbeans.api.visual.widget.*;
-import org.unikernel.lnu.ai.graph.Graph;
-import org.unikernel.lnu.ai.graph.Vertex;
 import org.unikernel.lnu.ai.agents.Algorithm;
-import org.unikernel.lnu.ai.agents.DFS;
 import org.unikernel.lnu.ai.agents.IDAStar;
+import org.unikernel.lnu.ai.graph.Graph;
 import org.unikernel.lnu.ai.graph.HeuristicsVertex;
+import org.unikernel.lnu.ai.graph.Vertex;
 
 /**
  *
@@ -45,6 +46,8 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 	private long newNameCounter = 1;
 	private Graph g;
 	private Algorithm alg;
+	private List<Algorithm.StepData> sdl;
+	private Iterator<Algorithm.StepData> sdli;
 
 	public DFSGraphScene()
 	{
@@ -85,11 +88,13 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 							@Override
 							public void run()
 							{
-								Object[] way = alg.search().toArray();
-								if(way != null)
+								if(alg.search() == null)
 								{
-									drawWay(alg.getWalkedTrough().toArray(), Color.orange);
-									drawWay(way, Color.red);
+									return;
+								}
+								for (Algorithm.StepData sd : alg.getWalkedTrough())
+								{
+									drawWay(sd);
 								}
 							}
 						}).start();
@@ -102,17 +107,16 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 					@Override
 					public void actionPerformed(ActionEvent e)
 					{
-						Algorithm.StepResult res = alg.step();
-						if (res == null)
+						if(sdl == null)
 						{
-							return;
+							alg.search();
+							sdl = alg.getWalkedTrough();
+							sdli = sdl.iterator();
 						}
-						Color color = Color.red;
-						if (res.backtracking)
+						if(sdli.hasNext())
 						{
-							color = Color.orange;
+							drawWay(sdli.next());
 						}
-						drawWay(res.stepPath.toArray(), color);
 					}
 				});
 				jmi.setText("Search step");
@@ -143,6 +147,33 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 			return null;
 		}
 		return (Integer)(edgesBetween.toArray()[0]);
+	}
+	
+	private void drawWay(Algorithm.StepData sd)
+	{
+		if(sd == null)
+		{//next iteration
+			for(Integer edge : getEdges())
+			{
+				findWidget(edge).setForeground(getLookFeel().getLineColor(ObjectState.createNormal()));
+			}
+			return;
+		}
+		if (sd.backtracking)
+		{
+			drawWay(new Object[]
+					{
+						sd.connection.getSecondVertex(),
+						sd.connection.getFirstVertex()
+					}, Color.orange);
+		} else
+		{
+			drawWay(new Object[]
+					{
+						sd.connection.getFirstVertex(),
+						sd.connection.getSecondVertex()
+					}, Color.red);
+		}
 	}
 	
 	private void drawWay(Object[] way, Color color)

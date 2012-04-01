@@ -3,6 +3,7 @@ package org.unikernel.lnu.ai.agents;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import org.unikernel.lnu.ai.graph.Graph;
 import org.unikernel.lnu.ai.graph.Vertex;
 
@@ -12,65 +13,20 @@ import org.unikernel.lnu.ai.graph.Vertex;
  */
 public class DFS extends Algorithm
 {
-	private ArrayList<Vertex> currentPath = new ArrayList<Vertex>();
-	private ArrayList<Vertex> pathToWalk = new ArrayList<Vertex>();
 	public DFS(Graph graph)
 	{
 		super(graph);
 	}
-	
-	@Override
-	public void reset()
-	{
-		super.reset();
-		currentPath = new ArrayList<Vertex>();
-		pathToWalk = new ArrayList<Vertex>();
-	}
 
 	@Override
-	public StepResult step()
+	public List<Vertex> search()
 	{
-		if(startVertex == null || endVertex == null || !resultingWay.isEmpty())
+		if(startVertex == null || endVertex == null)
 		{
 			return null;
 		}
-		if(currentPath.isEmpty())
-		{//first step
-			pathToWalk.add(startVertex);
-		}
-		Vertex previousVertex = currentPath.isEmpty() ?
-				null : currentPath.get(currentPath.size()-1);
-		Vertex currentVertex;
-		while (walkedTrough.contains(pathToWalk.get(0)))
-		{//omit cycles
-			pathToWalk.remove(0);
-		}
-		//if it's first step or forthtracking
-		if(previousVertex == null || graph.areConnected(previousVertex, pathToWalk.get(0)))
-		{	
-			currentVertex = pathToWalk.remove(0);
-			currentPath.add(currentVertex);
-			walkedTrough.add(currentVertex);
-			if (currentVertex.equals(endVertex))
-			{//goal reached
-				resultingWay.addAll(currentPath);
-				return new StepResult(true, false, previousVertex, currentVertex);
-			}
-			pathToWalk.addAll(0, graph.getConnectedVertices(currentVertex));	//add all connected vertices
-			pathToWalk.remove(previousVertex);									//except the parent one
-			return new StepResult(false, false, previousVertex, currentVertex);
-		}
-		//backtracking
-		currentPath.remove(previousVertex);
-		currentVertex = currentPath.get(currentPath.size()-1);
-		walkedTrough.add(currentVertex);
-		return new StepResult(false, true, previousVertex, currentVertex);
-	}
-
-	@Override
-	public Collection<Vertex> search()
-	{
-		if(startVertex != null && endVertex != null && dfsSearch(startVertex))
+		reset();
+		if(dfsSearch(startVertex))
 		{
 			return Collections.unmodifiableList(resultingWay);
 		}
@@ -79,22 +35,26 @@ public class DFS extends Algorithm
 	
 	private boolean dfsSearch(Vertex currentVertex)
 	{
-		walkedTrough.add(currentVertex);
-		// Check if a goal was reached
+		walkedVertices.add(currentVertex);
 		if (currentVertex.equals(endVertex))
-		{
+		{//a goal was reached
 			resultingWay.add(currentVertex);
 			return true;
 		}
-		// iterate through all connected vertices
 		for (Vertex nextVertex : graph.getConnectedVertices(currentVertex))
-		{
-			if (!walkedTrough.contains(nextVertex)		// omit cycles
-					&& dfsSearch(nextVertex))
-			{
-				// add Vertex to the resulting way
-				resultingWay.add(0, currentVertex);
-				return true;
+		{// iterate through all connected vertices
+			if (!walkedVertices.contains(nextVertex))
+			{// omit cycles
+				//step forward
+				walkedTrough.add(new StepData(graph.findConnectionBetween(currentVertex, nextVertex)));
+				if (dfsSearch(nextVertex))
+				{
+					// add Vertex to the resulting way
+					resultingWay.add(0, currentVertex);
+					return true;
+				}
+				//backtracking
+				walkedTrough.add(new StepData(graph.findConnectionBetween(nextVertex, currentVertex), true));
 			}
 		}
 		// if there is no result - return false
