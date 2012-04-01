@@ -51,8 +51,8 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 		g = new Graph();
 		g.addPropertyChangeListener(this);
 		
-		alg = new DFS(g);
-//		alg = new IDAStar(g);
+//		alg = new DFS(g);
+		alg = new IDAStar(g);
 		
 		this.addChild(mainLayer);
 		this.addChild(connectionLayer);
@@ -86,8 +86,11 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 							public void run()
 							{
 								Object[] way = alg.search().toArray();
-								drawWay(alg.getWalkedTrough().toArray(), Color.orange);
-								drawWay(way, Color.red);
+								if(way != null)
+								{
+									drawWay(alg.getWalkedTrough().toArray(), Color.orange);
+									drawWay(way, Color.red);
+								}
 							}
 						}).start();
 					}
@@ -99,24 +102,17 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 					@Override
 					public void actionPerformed(ActionEvent e)
 					{
-						new Thread(new Runnable() {
-
-							@Override
-							public void run()
-							{
-								Algorithm.StepResult res = alg.step();
-								if(res == null)
-								{
-									return;
-								}
-								Color color = Color.red;
-								if(res.backtracking)
-								{
-									color = Color.orange;
-								}
-								drawWay(res.stepPath.toArray(), color);
-							}
-						}).start();
+						Algorithm.StepResult res = alg.step();
+						if (res == null)
+						{
+							return;
+						}
+						Color color = Color.red;
+						if (res.backtracking)
+						{
+							color = Color.orange;
+						}
+						drawWay(res.stepPath.toArray(), color);
 					}
 				});
 				jmi.setText("Search step");

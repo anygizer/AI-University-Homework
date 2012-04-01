@@ -54,9 +54,13 @@ public class Graph
 	
 	public void removeVertex(Vertex vertex)
 	{
-		for (Connection i : VertexConnections.get(vertex))
+		if (VertexConnections.containsKey(vertex))
 		{
-			this.disconnectVertices(i.getFirstVertex(), i.getSecondVertex());
+			for (Object con : VertexConnections.get(vertex).toArray())
+			{
+				Connection i = (Connection) con;
+				this.disconnectVertices(i.getFirstVertex(), i.getSecondVertex());
+			}
 		}
 		this.vertices.remove(vertex);
 	}

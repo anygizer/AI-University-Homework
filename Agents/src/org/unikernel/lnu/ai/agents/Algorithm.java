@@ -46,6 +46,14 @@ public abstract class Algorithm
 	public abstract StepResult step();
 	public abstract Collection<Vertex> search();
 	
+	public void reset()
+	{
+		startVertex = null;
+		endVertex = null;
+		walkedTrough = new ArrayList<Vertex>();
+		resultingWay = new ArrayList<Vertex>();
+	}
+	
 	public class StepResult
 	{
 		public boolean goalReached = false;

@@ -18,6 +18,14 @@ public class DFS extends Algorithm
 	{
 		super(graph);
 	}
+	
+	@Override
+	public void reset()
+	{
+		super.reset();
+		currentPath = new ArrayList<Vertex>();
+		pathToWalk = new ArrayList<Vertex>();
+	}
 
 	@Override
 	public StepResult step()
@@ -77,27 +85,19 @@ public class DFS extends Algorithm
 		{
 			resultingWay.add(currentVertex);
 			return true;
-		} else
-		{
-			// iterate through all connected vertices
-			for (Vertex nextVertex : graph.getConnectedVertices(currentVertex))
-			{
-				// omit cycles
-				if (!walkedTrough.contains(nextVertex))
-				{
-					if (dfsSearch(nextVertex))
-					{
-						// add Vertex to the resulting way
-						resultingWay.add(0, currentVertex);
-						return true;
-					} else	// remove Vertexes on the backtrack from the resulting way
-					{
-//						resultingWay.remove(nextVertex);
-					}
-				}
-			}
-			// if there is no result - return false
-			return false;
 		}
-	}	
+		// iterate through all connected vertices
+		for (Vertex nextVertex : graph.getConnectedVertices(currentVertex))
+		{
+			if (!walkedTrough.contains(nextVertex)		// omit cycles
+					&& dfsSearch(nextVertex))
+			{
+				// add Vertex to the resulting way
+				resultingWay.add(0, currentVertex);
+				return true;
+			}
+		}
+		// if there is no result - return false
+		return false;
+	}
 }
