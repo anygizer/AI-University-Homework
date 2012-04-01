@@ -69,7 +69,7 @@ public class UniformCostSearch extends Algorithm
 						nextHeuristicsVertex.setHeuristics(pathWaightToNextVertex);
 						movementMap.put(nextHeuristicsVertex, currentVertex);
 						frontier.add(nextHeuristicsVertex);
-						walkedTrough.add(new StepData(graph.findConnectionBetween(currentVertex, nextVertex)));
+						walkedTrough.add(new StepData(graph.getConnectionBetween(currentVertex, nextVertex)));
 					}
 					else
 					{
@@ -77,7 +77,7 @@ public class UniformCostSearch extends Algorithm
 						{
 							nextHeuristicsVertex.setHeuristics(pathWaightToNextVertex);
 							movementMap.put(nextHeuristicsVertex, currentVertex);
-							walkedTrough.add(new StepData(graph.findConnectionBetween(currentVertex, nextVertex)));
+							walkedTrough.add(new StepData(graph.getConnectionBetween(currentVertex, nextVertex)));
 						}
 					}
 				}

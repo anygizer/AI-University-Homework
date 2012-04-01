@@ -85,7 +85,7 @@ public class IDAStar extends Algorithm
 				continue;
 			}
 			//step forward
-			walkedTrough.add(new StepData(graph.findConnectionBetween(currentVertex, i)));
+			walkedTrough.add(new StepData(graph.getConnectionBetween(currentVertex, i)));
 			int newStartCost = startCost + (int)graph.getWeightBetween(currentVertex, i);
 			DFSSearchResult sol = dfsSearch(newStartCost, (HeuristicsVertex)i, costLimit);
 			if(sol.isSolution())
@@ -96,7 +96,7 @@ public class IDAStar extends Algorithm
 			//find next cost limit as minimum of connected vertices minimum costs
 			nextCostLimit = Math.min(nextCostLimit, sol.getCostLimit());
 			//backtracking
-			walkedTrough.add(new StepData(graph.findConnectionBetween(i, currentVertex), true));
+			walkedTrough.add(new StepData(graph.getConnectionBetween(i, currentVertex), true));
 		}
 		
 		return new DFSSearchResult(false, nextCostLimit);

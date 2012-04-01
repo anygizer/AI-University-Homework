@@ -138,15 +138,15 @@ public class Graph
 	
 	public double getWeightBetween(Vertex sourceVertex, Vertex targetVertex)
 	{
-		return connections.get(findConnectionBetween(sourceVertex, targetVertex));
+		return connections.get(getConnectionBetween(sourceVertex, targetVertex));
 	}
 	
 	public void setWeightBetween(Vertex sourceVertex, Vertex targetVertex, double weight)
 	{
-		connections.put(findConnectionBetween(sourceVertex, targetVertex), weight);
+		connections.put(getConnectionBetween(sourceVertex, targetVertex), weight);
 	}
 	
-	public Connection findConnectionBetween(Vertex sourceVertex, Vertex targetVertex)
+	public Connection getConnectionBetween(Vertex sourceVertex, Vertex targetVertex)
 	{
 		if(sourceVertex == null || targetVertex == null)
 		{
@@ -164,7 +164,7 @@ public class Graph
 	
 	public boolean areConnected(Vertex sourceVertex, Vertex targetVertex)
 	{
-		return findConnectionBetween(sourceVertex, targetVertex) != null;
+		return getConnectionBetween(sourceVertex, targetVertex) != null;
 	}
 	
 	public class Connection
