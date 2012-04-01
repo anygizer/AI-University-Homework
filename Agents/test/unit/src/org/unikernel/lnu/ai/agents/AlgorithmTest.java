@@ -1,12 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.unikernel.lnu.ai.agents;
 
 import java.util.Collection;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import org.junit.*;
-import static org.junit.Assert.*;
 import org.unikernel.lnu.ai.graph.Vertex;
 
 /**
@@ -67,20 +64,6 @@ public class AlgorithmTest
 		fail("The test case is a prototype.");
 	}
 
-	/**
-	 * Test of step method, of class Algorithm.
-	 */
-	@Test
-	public void testStep()
-	{
-		System.out.println("step");
-		Algorithm instance = null;
-		Vertex[] expResult = null;
-		Vertex[] result = instance.step();
-		assertArrayEquals(expResult, result);
-		// TODO review the generated test code and remove the default call to fail.
-		fail("The test case is a prototype.");
-	}
 
 	/**
 	 * Test of search method, of class Algorithm.
@@ -95,25 +78,5 @@ public class AlgorithmTest
 		assertEquals(expResult, result);
 		// TODO review the generated test code and remove the default call to fail.
 		fail("The test case is a prototype.");
-	}
-
-	public class AlgorithmImpl extends Algorithm
-	{
-		public AlgorithmImpl()
-		{
-			super(null);
-		}
-
-		@Override
-		public Vertex[] step()
-		{
-			return null;
-		}
-
-		@Override
-		public Collection<Vertex> search()
-		{
-			return null;
-		}
 	}
 }

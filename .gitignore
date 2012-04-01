@@ -5,3 +5,4 @@ build/
 /dist/
 /DFS/nbproject/private/
 /VisualEditor/nbproject/private/
+*.orig

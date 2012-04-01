@@ -54,9 +54,13 @@ public class Graph
 	
 	public void removeVertex(Vertex vertex)
 	{
-		for (Connection i : VertexConnections.get(vertex))
+		if (VertexConnections.containsKey(vertex))
 		{
-			this.disconnectVertices(i.getFirstVertex(), i.getSecondVertex());
+			for (Object con : VertexConnections.get(vertex).toArray())
+			{
+				Connection i = (Connection) con;
+				this.disconnectVertices(i.getFirstVertex(), i.getSecondVertex());
+			}
 		}
 		this.vertices.remove(vertex);
 	}
@@ -72,7 +76,7 @@ public class Graph
 	 * @param secondVertex second vertex
 	 * @param weight a weight of the connection
 	 */
-	public void connectVertices(Vertex firstVertex, Vertex secondVertex, double weight)
+	public Connection connectVertices(Vertex firstVertex, Vertex secondVertex, double weight)
 	{
 		//if the specified elements are in the circuit
 		if (vertices.contains(firstVertex) && vertices.contains(secondVertex))
@@ -94,7 +98,9 @@ public class Graph
 			}
 			VertexConnections.get(firstVertex).add(conn);
 			VertexConnections.get(secondVertex).add(conn);
+			return conn;
 		}
+		return null;
 	}
 
 	/**
@@ -135,8 +141,17 @@ public class Graph
 		return connections.get(findConnectionBetween(sourceVertex, targetVertex));
 	}
 	
-	private Connection findConnectionBetween(Vertex sourceVertex, Vertex targetVertex)
+	public void setWeightBetween(Vertex sourceVertex, Vertex targetVertex, double weight)
 	{
+		connections.put(findConnectionBetween(sourceVertex, targetVertex), weight);
+	}
+	
+	public Connection findConnectionBetween(Vertex sourceVertex, Vertex targetVertex)
+	{
+		if(sourceVertex == null || targetVertex == null)
+		{
+			return  null;
+		}
 		for(Connection i : VertexConnections.get(sourceVertex))
 		{
 			if(i.getOtherVertex(sourceVertex).equals(targetVertex))
@@ -147,7 +162,12 @@ public class Graph
 		return null;
 	}
 	
-	private class Connection
+	public boolean areConnected(Vertex sourceVertex, Vertex targetVertex)
+	{
+		return findConnectionBetween(sourceVertex, targetVertex) != null;
+	}
+	
+	public class Connection
 	{
 		private Vertex firstVertex;
 		private Vertex secondVertex;

@@ -6,10 +6,9 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -18,14 +17,14 @@ import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.anchor.AnchorShape;
 import org.netbeans.api.visual.anchor.PointShape;
 import org.netbeans.api.visual.graph.GraphPinScene;
+import org.netbeans.api.visual.model.ObjectState;
 import org.netbeans.api.visual.router.RouterFactory;
 import org.netbeans.api.visual.widget.*;
-import org.unikernel.lnu.ai.graph.Graph;
-import org.unikernel.lnu.ai.graph.Vertex;
 import org.unikernel.lnu.ai.agents.Algorithm;
-import org.unikernel.lnu.ai.agents.DFS;
-import org.unikernel.lnu.ai.agents.UniformCostSearch;
+import org.unikernel.lnu.ai.agents.IDAStar;
+import org.unikernel.lnu.ai.graph.Graph;
 import org.unikernel.lnu.ai.graph.HeuristicsVertex;
+import org.unikernel.lnu.ai.graph.Vertex;
 
 /**
  *
@@ -39,18 +38,25 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 	private int edgeCounter = 0;
 	private WidgetAction connectAction = ActionFactory.createConnectAction(interractionLayer, new SceneConnectProvider());
 	private WidgetAction reconnetAction = ActionFactory.createReconnectAction(new SceneReconnectProvider());
-	private WidgetAction editorAction = ActionFactory.createInplaceEditorAction(new LabelTextFieldEditor());
+	private WidgetAction labelEditorAction = ActionFactory.createInplaceEditorAction(new LabelTextFieldEditor());
+	private WidgetAction hardcodedHeuristicsEditorAction = ActionFactory
+			.createInplaceEditorAction(new HardcodedHeuristicsEditor());
+	private WidgetAction hardcodedConnectionWeightEditorAction = ActionFactory
+			.createInplaceEditorAction(new HardcodedConnectionWeightEditor());
 	private final static String NAME_TEMPLATE = "Place";
 	private long newNameCounter = 1;
 	private Graph g;
 	private Algorithm alg;
+	private List<Algorithm.StepData> sdl;
+	private Iterator<Algorithm.StepData> sdli;
 
 	public DFSGraphScene()
 	{
 		g = new Graph();
 		g.addPropertyChangeListener(this);
 		
-		alg = new UniformCostSearch(g);
+//		alg = new DFS(g);
+		alg = new IDAStar(g);
 		
 		this.addChild(mainLayer);
 		this.addChild(connectionLayer);
@@ -84,14 +90,38 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 							@Override
 							public void run()
 							{
-								Object[] way = alg.search().toArray();
-								drawWay(alg.getWalkedTrough().toArray(), Color.orange);
-								drawWay(way, Color.red);
+								if(alg.search() == null)
+								{
+									return;
+								}
+								for (Algorithm.StepData sd : alg.getWalkedTrough())
+								{
+									drawWay(sd);
+								}
 							}
 						}).start();
 					}
 				});
-				jmi.setText("Start");
+				jmi.setText("Start search");
+				menu.add(jmi);
+				jmi = new JMenuItem(new AbstractAction() {
+
+					@Override
+					public void actionPerformed(ActionEvent e)
+					{
+						if(sdl == null)
+						{
+							alg.search();
+							sdl = alg.getWalkedTrough();
+							sdli = sdl.iterator();
+						}
+						if(sdli.hasNext())
+						{
+							drawWay(sdli.next());
+						}
+					}
+				});
+				jmi.setText("Search step");
 				menu.add(jmi);
 				return menu;
 			}
@@ -100,17 +130,52 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 
 	private String getNodeFirstPin(Vertex node)
 	{
-		return (String)(getNodePins(node).toArray()[0]);
+		return node == null ? null : (String)(getNodePins(node).toArray()[0]);
 	}
 	
 	private Integer findFirstEdgeBetween(String sourcePin, String targetPin)
 	{
+		if(sourcePin == null || targetPin == null)
+		{
+			return null;
+		}
 		Collection<Integer> edgesBetween = findEdgesBetween(sourcePin, targetPin);
+		if(edgesBetween.isEmpty())
+		{//bidirectional
+			edgesBetween = findEdgesBetween(targetPin, sourcePin);
+		}
 		if(edgesBetween.isEmpty())
 		{
 			return null;
 		}
 		return (Integer)(edgesBetween.toArray()[0]);
+	}
+	
+	private void drawWay(Algorithm.StepData sd)
+	{
+		if(sd == null)
+		{//next iteration
+			for(Integer edge : getEdges())
+			{
+				findWidget(edge).setForeground(getLookFeel().getLineColor(ObjectState.createNormal()));
+			}
+			return;
+		}
+		if (sd.backtracking)
+		{
+			drawWay(new Object[]
+					{
+						sd.connection.getSecondVertex(),
+						sd.connection.getFirstVertex()
+					}, Color.orange);
+		} else
+		{
+			drawWay(new Object[]
+					{
+						sd.connection.getFirstVertex(),
+						sd.connection.getSecondVertex()
+					}, Color.red);
+		}
 	}
 	
 	private void drawWay(Object[] way, Color color)
@@ -132,8 +197,10 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 	{
 		PlaceWidget widget = new PlaceWidget(this);
 		widget.getLabelWidget().setLabel(node.getLabel());
+		widget.getHeuristicsWidget().setLabel(String.valueOf(((HeuristicsVertex)node).getHeuristics()));
 		
-		widget.getLabelWidget().getActions().addAction(editorAction);
+		widget.getLabelWidget().getActions().addAction(labelEditorAction);
+		widget.getHeuristicsWidget().getActions().addAction(hardcodedHeuristicsEditorAction);
 		widget.getActions().addAction(createSelectAction());
 		widget.getActions().addAction(ActionFactory.createMoveAction());
 		widget.getActions().addAction(ActionFactory.createPopupMenuAction(new PopupMenuProvider() {
@@ -185,7 +252,7 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 		
 		connection.getActions().addAction(createObjectHoverAction());
 		//double-click, the event is consumed while double-clicking only:
-		connection.getLabelWidget().getActions().addAction(editorAction);
+		connection.getLabelWidget().getActions().addAction(hardcodedConnectionWeightEditorAction);
 		//single-click, the event is not consumed:
 		connection.getActions().addAction(createSelectAction());
 		//mouse-dragged, the event is consumed while mouse is dragged:
@@ -278,9 +345,9 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 		@Override
 		public void createConnection(Widget sourceWidget, Widget targetWidget)
 		{
-			g.connectVertices(getPinNode(source), getPinNode(target), edgeCounter);
+			g.connectVertices(getPinNode(source), getPinNode(target), 1);
 			Integer edge = new Integer(edgeCounter++);
-			addEdge(edge);
+			((LabeledConnectionWidget)addEdge(edge)).getLabelWidget().setLabel(String.valueOf(1));
 			setEdgeSource(edge, source);
 			setEdgeTarget(edge, target);
 		}
@@ -381,50 +448,51 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 		}
 	}
 	
-	private class Nodee implements Comparable<Nodee>
+	private class HardcodedHeuristicsEditor implements TextFieldInplaceEditor
 	{
-		public String name;
-		public Integer value;
-		public Nodee prevNode;
-		public Integer prevEdge;
+
 		@Override
-		public int compareTo(Nodee t)
+		public boolean isEnabled(Widget widget)
 		{
-			return this.value.compareTo(t.value);
+			return true;
 		}
-		public Nodee(String name, Integer value)
-		{
-			this.name = name;
-			this.value = value;
-		}
-		
+
 		@Override
-		public boolean equals(Object param)
+		public String getText(Widget widget)
 		{
-			if(param.getClass().equals(Nodee.class) && this.name.equals(((Nodee)param).name))
-			{
-				return true;
-			}
-			return false;
+			return ((LabelWidget) widget).getLabel();
 		}
-		
+
 		@Override
-		public int hashCode()
+		public void setText(Widget widget, String text)
 		{
-			int hash = 3;
-			hash = 31 * hash + (this.name != null ? this.name.hashCode() : 0);
-			hash = 31 * hash + (this.value != null ? this.value.hashCode() : 0);
-			return hash;
+			((HeuristicsVertex)findObject(((LabelWidget) widget).getParentWidget()))
+					.setHeuristics(Integer.parseInt(text));
+			((LabelWidget) widget).setLabel(text);
 		}
-		public Nodee(String name, Integer value, Nodee prevNode, Integer prevEdge)
+	}
+	
+	private class HardcodedConnectionWeightEditor implements TextFieldInplaceEditor
+	{
+		@Override
+		public boolean isEnabled(Widget widget)
 		{
-			this.name = name;
-			this.value = value;
-			this.prevNode = prevNode;
-			this.prevEdge = prevEdge;
+			return true;
 		}
-		
-		
-		
+
+		@Override
+		public String getText(Widget widget)
+		{
+			return ((LabelWidget) widget).getLabel();
+		}
+
+		@Override
+		public void setText(Widget widget, String text)
+		{
+			Vertex source = getPinNode(getEdgeSource((Integer)findObject(widget)));
+			Vertex target = getPinNode(getEdgeTarget((Integer)findObject(widget)));
+			g.setWeightBetween(source, target, Integer.parseInt(text));
+			((LabelWidget) widget).setLabel(text);
+		}
 	}
 }

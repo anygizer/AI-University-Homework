@@ -1,8 +1,7 @@
 package org.unikernel.lnu.ai.agents;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import org.unikernel.lnu.ai.graph.Graph;
 import org.unikernel.lnu.ai.graph.HeuristicsVertex;
 import org.unikernel.lnu.ai.graph.Vertex;
@@ -17,15 +16,9 @@ public class IDAStar extends Algorithm
 	{
 		super(graph);
 	}
-	
-	@Override
-	public Vertex[] step()
-	{
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
 
 	@Override
-	public Collection<Vertex> search()
+	public List<Vertex> search()
 	{
 		if(startVertex == null || endVertex == null)
 		{
@@ -37,19 +30,23 @@ public class IDAStar extends Algorithm
 //                (solution, cost_limit) = DFS(0, rootNode, cost_limit, [rootNode])
 //                if solution != None: return (solution, cost_limit)
 //                if cost_limit == ∞: return None
+		reset();
 		int costLimit = ((HeuristicsVertex)startVertex).getHeuristics();
 		
 		while(costLimit != Integer.MAX_VALUE)
 		{
-			walkedTrough.clear();
-			if(dfsSearch(0, (HeuristicsVertex)startVertex, costLimit).isSolution())
+			DFSSearchResult res = dfsSearch(0, (HeuristicsVertex)startVertex, costLimit);
+			if(res.isSolution())
 			{
-				return Collections.unmodifiableCollection(resultingWay);
+				return Collections.unmodifiableList(resultingWay);
 			}
+			costLimit = res.getCostLimit();
+			walkedTrough.add(null);	//next iteration mark
+			walkedVertices.clear();
 		}
 		return null;
 	}
-			
+
 	private DFSSearchResult dfsSearch(int startCost, HeuristicsVertex currentVertex, int costLimit)
 	{
 //		print "start_cost:", start_cost, ", node:", node, ", cost_limit:", cost_limit, ", path_so_far:", path_so_far
@@ -73,16 +70,22 @@ public class IDAStar extends Algorithm
 		{
 			return new DFSSearchResult(false, minimumCost);
 		}
-		walkedTrough.add(currentVertex);
+		walkedVertices.add(currentVertex);
 		if(currentVertex.equals(endVertex))
-		{
+		{//a goal was reached
 			resultingWay.add(currentVertex);
 			return new DFSSearchResult(true, costLimit);
 		}
 		
 		int nextCostLimit = Integer.MAX_VALUE;
 		for(Vertex i : graph.getConnectedVertices(currentVertex))
-		{
+		{// iterate through all connected vertices
+			if(walkedVertices.contains(i))
+			{//omit cycles
+				continue;
+			}
+			//step forward
+			walkedTrough.add(new StepData(graph.findConnectionBetween(currentVertex, i)));
 			int newStartCost = startCost + (int)graph.getWeightBetween(currentVertex, i);
 			DFSSearchResult sol = dfsSearch(newStartCost, (HeuristicsVertex)i, costLimit);
 			if(sol.isSolution())
@@ -90,7 +93,10 @@ public class IDAStar extends Algorithm
 				resultingWay.add(0, currentVertex);
 				return sol;
 			}
+			//find next cost limit as minimum of connected vertices minimum costs
 			nextCostLimit = Math.min(nextCostLimit, sol.getCostLimit());
+			//backtracking
+			walkedTrough.add(new StepData(graph.findConnectionBetween(i, currentVertex), true));
 		}
 		
 		return new DFSSearchResult(false, nextCostLimit);

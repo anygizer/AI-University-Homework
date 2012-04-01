@@ -24,14 +24,9 @@ public class UniformCostSearch extends Algorithm
 	{
 		super(graph);
 	}
-	
+
 	@Override
-	public Vertex[] step()
-	{
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
-	@Override
-	public Collection<Vertex> search()
+	public List<Vertex> search()
 	{
 		if(startVertex != null && endVertex != null && uniformCostSearch(startVertex))
 		{
@@ -42,6 +37,7 @@ public class UniformCostSearch extends Algorithm
 	
 	private boolean uniformCostSearch(Vertex startVertex)
 	{
+		Set<Vertex> walked = new HashSet<Vertex>();
 		HeuristicsVertex startHeuristicsVertex = (HeuristicsVertex)startVertex;
 		frontier.add((HeuristicsVertex)startVertex);
 		while(frontier.size()>0)
@@ -61,7 +57,7 @@ public class UniformCostSearch extends Algorithm
 				Collections.reverse(resultingWay);
 				return true;
 			}
-			walkedTrough.add(currentVertex);
+			walked.add(currentVertex);
 			for (Vertex nextVertex : graph.getConnectedVertices(currentVertex))
 			{
 				if (!walkedTrough.contains(nextVertex))

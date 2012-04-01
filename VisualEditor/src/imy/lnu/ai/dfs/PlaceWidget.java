@@ -21,6 +21,7 @@ public class PlaceWidget extends Widget
 {
 	private ImageWidget imageWidget;
 	private LabelWidget labelWidget;
+	private LabelWidget heuristicsWidget;
 	
 	private int width = 40;
 	private int height = 40;
@@ -46,11 +47,19 @@ public class PlaceWidget extends Widget
 		
 		labelWidget = new LabelWidget(scene);
 		addChild(labelWidget);
+		
+		heuristicsWidget = new LabelWidget(scene);
+		addChild(heuristicsWidget);
 	}
 
 	public LabelWidget getLabelWidget()
 	{
 		return labelWidget;
+	}
+
+	public LabelWidget getHeuristicsWidget()
+	{
+		return heuristicsWidget;
 	}
 
 	void attachPinWidget(PlacePinWidget widget)
