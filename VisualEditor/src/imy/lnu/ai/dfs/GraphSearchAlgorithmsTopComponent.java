@@ -1,11 +1,16 @@
 package imy.lnu.ai.dfs;
 
+import java.awt.event.ItemEvent;
 import javax.swing.JComponent;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.util.Lookup;
+import org.openide.util.LookupEvent;
+import org.openide.util.LookupListener;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
+import org.unikernel.lnu.ai.agents.api.Algorithm;
 
 /**
  * Top component which displays something.
@@ -28,12 +33,13 @@ preferredID = "DFSTopComponent")
 	"CTL_DFSTopComponent=DFS Window",
 	"HINT_DFSTopComponent=This is a DFS window"
 })
-public final class DFSTopComponent extends TopComponent
+public final class GraphSearchAlgorithmsTopComponent extends TopComponent implements LookupListener
 {
 	private DFSGraphScene scene;
 	private JComponent sceneView;
+	private Lookup.Result<Algorithm> algorithms;
 	
-	public DFSTopComponent()
+	public GraphSearchAlgorithmsTopComponent()
 	{
 		initComponents();
 		setName(Bundle.CTL_DFSTopComponent());
@@ -41,7 +47,7 @@ public final class DFSTopComponent extends TopComponent
 
 		scene = new DFSGraphScene();
 		sceneView = scene.createView();
-		jScrollPane1.setViewportView(sceneView);
+		sceneScrollPane.setViewportView(sceneView);
 	}
 
 	/**
@@ -52,33 +58,68 @@ public final class DFSTopComponent extends TopComponent
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jScrollPane1 = new javax.swing.JScrollPane();
+        sceneScrollPane = new javax.swing.JScrollPane();
+        jComboBox1 = new javax.swing.JComboBox();
+
+        jComboBox1.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jComboBox1ItemStateChanged(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+            .addComponent(sceneScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(6, 6, 6)
+                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(sceneScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 261, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
+	private void jComboBox1ItemStateChanged(java.awt.event.ItemEvent evt)//GEN-FIRST:event_jComboBox1ItemStateChanged
+	{//GEN-HEADEREND:event_jComboBox1ItemStateChanged
+		if(evt.getStateChange() == ItemEvent.SELECTED)
+		{
+			scene.setAlgorithm((Algorithm)evt.getItem());
+		}
+	}//GEN-LAST:event_jComboBox1ItemStateChanged
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JComboBox jComboBox1;
+    private javax.swing.JScrollPane sceneScrollPane;
     // End of variables declaration//GEN-END:variables
 	@Override
 	public void componentOpened()
 	{
-		// TODO add custom code on component opening
+		algorithms = Lookup.getDefault().lookupResult(Algorithm.class);
+		algorithms.addLookupListener(this);
+		fillCombobox();
 	}
 
 	@Override
 	public void componentClosed()
 	{
-		// TODO add custom code on component closing
+		algorithms.removeLookupListener(this);
+		algorithms = null;
+	}
+	
+	private void fillCombobox()
+	{
+		for(Algorithm i : algorithms.allInstances())
+		{
+			jComboBox1.addItem(i);
+		}
 	}
 
 	void writeProperties(java.util.Properties p)
@@ -93,5 +134,11 @@ public final class DFSTopComponent extends TopComponent
 	{
 		String version = p.getProperty("version");
 		// TODO read your settings according to their version
+	}
+
+	@Override
+	public void resultChanged(LookupEvent ev)
+	{
+		fillCombobox();
 	}
 }

@@ -19,8 +19,7 @@ import org.netbeans.api.visual.graph.GraphPinScene;
 import org.netbeans.api.visual.model.ObjectState;
 import org.netbeans.api.visual.router.RouterFactory;
 import org.netbeans.api.visual.widget.*;
-import org.unikernel.lnu.ai.agents.Algorithm;
-import org.unikernel.lnu.ai.agents.IDAStar;
+import org.unikernel.lnu.ai.agents.api.Algorithm;
 import org.unikernel.lnu.ai.graph.Graph;
 import org.unikernel.lnu.ai.graph.HeuristicsVertex;
 import org.unikernel.lnu.ai.graph.Vertex;
@@ -55,7 +54,7 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 		g.addPropertyChangeListener(this);
 		
 //		alg = new DFS(g);
-		alg = new IDAStar(g);
+//		alg = new IDAStar(g);
 		
 		this.addChild(mainLayer);
 		this.addChild(connectionLayer);
@@ -83,6 +82,10 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 					@Override
 					public void actionPerformed(ActionEvent e)
 					{
+						if (alg == null)
+						{
+							return;
+						}
 						new Thread(new Runnable() {
 
 							@Override
@@ -107,6 +110,10 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 					@Override
 					public void actionPerformed(ActionEvent e)
 					{
+						if(alg == null)
+						{
+							return;
+						}
 						if(sdl == null)
 						{
 							alg.search();
@@ -124,6 +131,17 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 				return menu;
 			}
 		}));
+	}
+
+	public void setAlgorithm(Algorithm alg)
+	{
+		if(this.alg != null)
+		{
+			alg.setStartVertex(this.alg.getStartVertex());
+			alg.setEndVertex(this.alg.getEndVertex());
+		}
+		alg.setGraph(g);
+		this.alg = alg;
 	}
 
 	private String getNodeFirstPin(Vertex node)
@@ -213,6 +231,10 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 					@Override
 					public void actionPerformed(ActionEvent e)
 					{
+						if(alg == null)
+						{
+							return;
+						}
 						alg.setStartVertex((Vertex) findObject(w));
 					}
 				});
@@ -223,6 +245,10 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 					@Override
 					public void actionPerformed(ActionEvent e)
 					{
+						if(alg == null)
+						{
+							return;
+						}
 						alg.setEndVertex((Vertex) findObject(w));
 					}
 				});

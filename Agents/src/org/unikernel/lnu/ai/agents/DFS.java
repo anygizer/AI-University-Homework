@@ -1,9 +1,11 @@
 package org.unikernel.lnu.ai.agents;
 
+import org.unikernel.lnu.ai.agents.api.Algorithm;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import org.openide.util.lookup.ServiceProvider;
 import org.unikernel.lnu.ai.graph.Graph;
 import org.unikernel.lnu.ai.graph.Vertex;
 
@@ -11,8 +13,14 @@ import org.unikernel.lnu.ai.graph.Vertex;
  *
  * @author mcangel
  */
+@ServiceProvider(service=Algorithm.class)
 public class DFS extends Algorithm
 {
+
+	public DFS()
+	{
+	}
+	
 	public DFS(Graph graph)
 	{
 		super(graph);

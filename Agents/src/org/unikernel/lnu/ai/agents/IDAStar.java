@@ -1,7 +1,9 @@
 package org.unikernel.lnu.ai.agents;
 
+import org.unikernel.lnu.ai.agents.api.Algorithm;
 import java.util.Collections;
 import java.util.List;
+import org.openide.util.lookup.ServiceProvider;
 import org.unikernel.lnu.ai.graph.Graph;
 import org.unikernel.lnu.ai.graph.HeuristicsVertex;
 import org.unikernel.lnu.ai.graph.Vertex;
@@ -10,8 +12,14 @@ import org.unikernel.lnu.ai.graph.Vertex;
  *
  * @author mcangel
  */
+@ServiceProvider(service=Algorithm.class)
 public class IDAStar extends Algorithm
 {
+
+	public IDAStar()
+	{
+	}
+	
 	public IDAStar(Graph graph)
 	{
 		super(graph);
