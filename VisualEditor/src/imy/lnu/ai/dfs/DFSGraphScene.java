@@ -1,6 +1,7 @@
 package imy.lnu.ai.dfs;
 
 import java.awt.Color;
+import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
@@ -60,6 +61,16 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 		this.addChild(connectionLayer);
 		this.addChild(interractionLayer);
 		
+		getActions().addAction(ActionFactory.createEditAction(new EditProvider() {
+			@Override
+			public void edit(Widget widget)
+			{
+				String newName = NAME_TEMPLATE;
+				newName = NAME_TEMPLATE + newNameCounter++;
+				g.addVertex(new HeuristicsVertex(newName, new Point(MouseInfo.getPointerInfo().getLocation().x-widget.getScene().getView().getLocationOnScreen().x-20, MouseInfo.getPointerInfo().getLocation().y-widget.getScene().getView().getLocationOnScreen().y-20)));
+				widget.getScene().validate();
+			}
+		}));
 		getActions().addAction(ActionFactory.createPopupMenuAction(new PopupMenuProvider() {
 
 			@Override
@@ -67,17 +78,8 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 			{
 				final Point localPoint = localLocation;
 				JPopupMenu menu = new JPopupMenu("Menu");
-				JMenuItem jmi = new JMenuItem(new AbstractAction() {
 
-					@Override
-					public void actionPerformed(ActionEvent e)
-					{
-						g.addVertex(new HeuristicsVertex(1, NAME_TEMPLATE + newNameCounter++, localPoint));
-					}
-				});
-				jmi.setText("Create place");
-				menu.add(jmi);
-				jmi = new JMenuItem(new AbstractAction() {
+				JMenuItem jmi = new JMenuItem(new AbstractAction() {
 
 					@Override
 					public void actionPerformed(ActionEvent e)

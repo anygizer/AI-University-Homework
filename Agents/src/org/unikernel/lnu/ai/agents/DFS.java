@@ -54,7 +54,7 @@ public class DFS extends Algorithm
 			if (!walkedVertices.contains(nextVertex))
 			{// omit cycles
 				//step forward
-				walkedTrough.add(new StepData(graph.findConnectionBetween(currentVertex, nextVertex)));
+				walkedTrough.add(new StepData(graph.getConnectionBetween(currentVertex, nextVertex)));
 				if (dfsSearch(nextVertex))
 				{
 					// add Vertex to the resulting way
@@ -62,7 +62,7 @@ public class DFS extends Algorithm
 					return true;
 				}
 				//backtracking
-				walkedTrough.add(new StepData(graph.findConnectionBetween(nextVertex, currentVertex), true));
+				walkedTrough.add(new StepData(graph.getConnectionBetween(nextVertex, currentVertex), true));
 			}
 		}
 		// if there is no result - return false

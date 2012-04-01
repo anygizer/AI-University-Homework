@@ -65,20 +65,6 @@ public class AlgorithmTest
 		fail("The test case is a prototype.");
 	}
 
-	/**
-	 * Test of step method, of class Algorithm.
-	 */
-	@Test
-	public void testStep()
-	{
-		System.out.println("step");
-		Algorithm instance = null;
-		Algorithm.StepResult expResult = null;
-		Algorithm.StepResult result = instance.step();
-		assertEquals(expResult, result);
-		// TODO review the generated test code and remove the default call to fail.
-		fail("The test case is a prototype.");
-	}
 
 	/**
 	 * Test of search method, of class Algorithm.
@@ -93,25 +79,5 @@ public class AlgorithmTest
 		assertEquals(expResult, result);
 		// TODO review the generated test code and remove the default call to fail.
 		fail("The test case is a prototype.");
-	}
-
-	public class AlgorithmImpl extends Algorithm
-	{
-		public AlgorithmImpl()
-		{
-			super(null);
-		}
-
-		@Override
-		public StepResult step()
-		{
-			return null;
-		}
-
-		@Override
-		public Collection<Vertex> search()
-		{
-			return null;
-		}
 	}
 }
