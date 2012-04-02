@@ -90,6 +90,7 @@ public class GraphSearchAlgorithmsScene extends GraphPinScene<Vertex, Integer, S
 								{
 									drawWay(sd);
 								}
+								drawWay(alg.getResultingWay().toArray(new Vertex[alg.getResultingWay().size()]), Color.green);
 							}
 						}).start();
 					}
@@ -101,10 +102,7 @@ public class GraphSearchAlgorithmsScene extends GraphPinScene<Vertex, Integer, S
 					@Override
 					public void actionPerformed(ActionEvent e)
 					{
-						if(alg == null)
-						{
-							return;
-						}
+						if(alg == null) return;
 						if(sdl == null)
 						{
 							alg.search();
@@ -112,9 +110,9 @@ public class GraphSearchAlgorithmsScene extends GraphPinScene<Vertex, Integer, S
 							sdli = sdl.iterator();
 						}
 						if(sdli.hasNext())
-						{
 							drawWay(sdli.next());
-						}
+						else
+							drawWay(alg.getResultingWay().toArray(new Vertex[alg.getResultingWay().size()]), Color.green);
 					}
 				});
 				jmi.setText("Search step");
