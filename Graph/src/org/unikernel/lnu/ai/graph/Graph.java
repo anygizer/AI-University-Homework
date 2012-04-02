@@ -1,7 +1,5 @@
 package org.unikernel.lnu.ai.graph;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.util.*;
 
 /**
@@ -16,9 +14,6 @@ public class Graph
 	private Map<Connection, Double> connections;
 	private Map<Vertex, Collection<Connection>> VertexConnections;
 
-	public static final String PROP_VERT_ADDED = "added new vertex";
-	private PropertyChangeSupport pcs;
-	
 	/**
 	 * Creates a new graph
 	 */
@@ -27,7 +22,6 @@ public class Graph
 		vertices = new HashSet<Vertex>();
 		connections = new HashMap<Connection, Double>();
 		VertexConnections = new HashMap<Vertex, Collection<Connection>>();
-		this.pcs = new PropertyChangeSupport(this);
 	}
 	
 	/**
@@ -37,7 +31,6 @@ public class Graph
 	public void addVertex(Vertex vertex)
 	{
 		vertices.add(vertex);
-		this.pcs.firePropertyChange(PROP_VERT_ADDED, null, vertex);
 	}
 	
 	/**
@@ -234,15 +227,5 @@ public class Graph
 			}
 			return null;
 		}
-	}
-	
-	public synchronized void addPropertyChangeListener(PropertyChangeListener listener)
-	{
-		this.pcs.addPropertyChangeListener(listener);
-	}
-
-	public synchronized void removePropertyChangeListener(PropertyChangeListener listener)
-	{
-		this.pcs.removePropertyChangeListener(listener);
 	}
 }

@@ -35,7 +35,7 @@ preferredID = "DFSTopComponent")
 })
 public final class GraphSearchAlgorithmsTopComponent extends TopComponent implements LookupListener
 {
-	private DFSGraphScene scene;
+	private GraphSearchAlgorithmsScene scene;
 	private JComponent sceneView;
 	private Lookup.Result<Algorithm> algorithms;
 	
@@ -45,7 +45,7 @@ public final class GraphSearchAlgorithmsTopComponent extends TopComponent implem
 		setName(Bundle.CTL_DFSTopComponent());
 		setToolTipText(Bundle.HINT_DFSTopComponent());
 
-		scene = new DFSGraphScene();
+		scene = new GraphSearchAlgorithmsScene();
 		sceneView = scene.createView();
 		sceneScrollPane.setViewportView(sceneView);
 	}

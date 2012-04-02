@@ -68,4 +68,14 @@ public class PlaceWidget extends Widget
 		imageWidget.addChild(widget);
 		widget.setPreferredLocation(new Point(0, 0));
 	}
+
+	public int getWidth()
+	{
+		return width;
+	}
+
+	public int getHeight()
+	{
+		return height;
+	}
 }

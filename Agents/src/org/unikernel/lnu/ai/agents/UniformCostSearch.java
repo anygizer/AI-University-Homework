@@ -1,11 +1,8 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package org.unikernel.lnu.ai.agents;
 
 import java.util.*;
+import org.openide.util.lookup.ServiceProvider;
+import org.unikernel.lnu.ai.agents.api.Algorithm;
 import org.unikernel.lnu.ai.graph.Graph;
 import org.unikernel.lnu.ai.graph.HeuristicsVertex;
 import org.unikernel.lnu.ai.graph.Vertex;
@@ -14,9 +11,14 @@ import org.unikernel.lnu.ai.graph.Vertex;
  *
  * @author uko
  */
+@ServiceProvider(service=Algorithm.class)
 public class UniformCostSearch extends Algorithm
 {
-	
+
+	public UniformCostSearch()
+	{
+	}
+
 	private MinimumArrayList<HeuristicsVertex> frontier = new MinimumArrayList<HeuristicsVertex>();
 	private Map<HeuristicsVertex, HeuristicsVertex> movementMap = new HashMap<HeuristicsVertex, HeuristicsVertex>();
 	
