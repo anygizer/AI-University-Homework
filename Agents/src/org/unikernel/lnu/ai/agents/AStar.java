@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package org.unikernel.lnu.ai.agents;
 
 import java.util.*;
@@ -17,14 +12,14 @@ import org.unikernel.lnu.ai.graph.Vertex;
  * @author uko
  */
 @ServiceProvider(service=Algorithm.class)
-public class ASrar extends Algorithm
+public class AStar extends Algorithm
 {
-	public  ASrar()
+	public  AStar()
 	{
 		
 	}
 	
-	public ASrar(Graph graph)
+	public AStar(Graph graph)
 	{
 		super(graph);
 	}
