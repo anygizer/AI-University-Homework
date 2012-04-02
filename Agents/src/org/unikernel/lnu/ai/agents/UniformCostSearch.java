@@ -15,12 +15,8 @@ import org.unikernel.lnu.ai.graph.Vertex;
 public class UniformCostSearch extends Algorithm
 {
 
-	public UniformCostSearch()
-	{
-	}
+	public UniformCostSearch(){}
 
-	private MinimumArrayList<HeuristicsVertex> frontier = new MinimumArrayList<HeuristicsVertex>();
-	private Map<HeuristicsVertex, HeuristicsVertex> movementMap = new HashMap<HeuristicsVertex, HeuristicsVertex>();
 	
 	public UniformCostSearch(Graph graph)
 	{
@@ -44,11 +40,22 @@ public class UniformCostSearch extends Algorithm
 	
 	private boolean uniformCostSearch(Vertex startVertex)
 	{
-		HeuristicsVertex startHeuristicsVertex = (HeuristicsVertex)startVertex;
-		frontier.add((HeuristicsVertex)startVertex);
+		Map<Vertex, Vertex> movementMap = new HashMap<Vertex, Vertex>();
+		final Map<Vertex, Integer> weights = new HashMap<Vertex, Integer>();
+		weights.put(startVertex, new Integer(0));
+		ArrayList<Vertex> frontier = new ArrayList<Vertex>();
+		frontier.add(startVertex);
 		while(frontier.size()>0)
 		{
-			HeuristicsVertex currentVertex = frontier.min();
+			Vertex currentVertex = (HeuristicsVertex)Collections.min(frontier,
+					new Comparator<Vertex>()
+					{
+						@Override
+						public int compare(Vertex entry1, Vertex entry2)
+						{
+							return weights.get(entry1).compareTo(weights.get(entry2));
+						}
+					});
 			frontier.remove(currentVertex);
 			if (currentVertex.equals(endVertex))
 			{
@@ -68,23 +75,25 @@ public class UniformCostSearch extends Algorithm
 			{
 				if (!walkedVertices.contains(nextVertex))
 				{
-					HeuristicsVertex nextHeuristicsVertex = (HeuristicsVertex)nextVertex;
-					int pathWaightToNextVertex = currentVertex.getHeuristics()+(int)graph.getWeightBetween(currentVertex, nextVertex);
-					if(!frontier.contains(nextHeuristicsVertex))
+					boolean thisPathIsBetter;
+					int pathWaightToNextVertex = weights.get(currentVertex)+(int)graph.getWeightBetween(currentVertex, nextVertex);
+					if(!frontier.contains(nextVertex))
 					{
-						nextHeuristicsVertex.setHeuristics(pathWaightToNextVertex);
-						movementMap.put(nextHeuristicsVertex, currentVertex);
-						frontier.add(nextHeuristicsVertex);
-						walkedTrough.add(new StepData(graph.getConnectionBetween(currentVertex, nextVertex)));
+						frontier.add(nextVertex);
+						thisPathIsBetter = true;
 					}
 					else
 					{
-						if(nextHeuristicsVertex.getHeuristics()>pathWaightToNextVertex)
-						{
-							nextHeuristicsVertex.setHeuristics(pathWaightToNextVertex);
-							movementMap.put(nextHeuristicsVertex, currentVertex);
-							walkedTrough.add(new StepData(graph.getConnectionBetween(currentVertex, nextVertex)));
-						}
+						if(weights.get(nextVertex) >pathWaightToNextVertex)
+							thisPathIsBetter = true;
+						else
+							thisPathIsBetter = false;
+					}
+					if (thisPathIsBetter)
+					{
+						weights.put(nextVertex, pathWaightToNextVertex);
+						movementMap.put(nextVertex, currentVertex);
+						walkedTrough.add(new StepData(graph.getConnectionBetween(currentVertex, nextVertex)));
 					}
 				}
 			}

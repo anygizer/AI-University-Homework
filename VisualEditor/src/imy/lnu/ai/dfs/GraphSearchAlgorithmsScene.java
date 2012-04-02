@@ -90,6 +90,7 @@ public class GraphSearchAlgorithmsScene extends GraphPinScene<Vertex, Integer, S
 								{
 									drawWay(sd);
 								}
+								drawWay(alg.getResultingWay().toArray(new Vertex[alg.getResultingWay().size()]), Color.green);
 							}
 						}).start();
 					}
@@ -101,10 +102,7 @@ public class GraphSearchAlgorithmsScene extends GraphPinScene<Vertex, Integer, S
 					@Override
 					public void actionPerformed(ActionEvent e)
 					{
-						if(alg == null)
-						{
-							return;
-						}
+						if(alg == null) return;
 						if(sdl == null)
 						{
 							alg.search();
@@ -112,9 +110,9 @@ public class GraphSearchAlgorithmsScene extends GraphPinScene<Vertex, Integer, S
 							sdli = sdl.iterator();
 						}
 						if(sdli.hasNext())
-						{
 							drawWay(sdli.next());
-						}
+						else
+							drawWay(alg.getResultingWay().toArray(new Vertex[alg.getResultingWay().size()]), Color.green);
 					}
 				});
 				jmi.setText("Search step");
@@ -182,30 +180,23 @@ public class GraphSearchAlgorithmsScene extends GraphPinScene<Vertex, Integer, S
 			}
 			return;
 		}
-		if (sd.backtracking)
+		Color lineColor = Color.black;
+		switch(sd.type)
 		{
-			drawWay(new Object[]
-					{
-						sd.connection.getSecondVertex(),
-						sd.connection.getFirstVertex()
-					}, Color.orange);
-		} else
-		{
-			drawWay(new Object[]
-					{
-						sd.connection.getFirstVertex(),
-						sd.connection.getSecondVertex()
-					}, Color.red);
+			case PATH:		lineColor = Color.green; break;
+			case BACKTRACK:	lineColor = Color.red; break;
+			case UNKNOWN:	lineColor = Color.orange;
 		}
+		drawWay(new Vertex[]{sd.connection.getSecondVertex(), sd.connection.getFirstVertex()}, lineColor);
 	}
 	
-	private void drawWay(Object[] way, Color color)
+	private void drawWay(Vertex[] way, Color color)
 	{
 		for (int i = 0; i < way.length - 1; i++)
 		{
 			Integer edge = findFirstEdgeBetween(
-					getNodeFirstPin((Vertex) way[i]),
-					getNodeFirstPin((Vertex) way[i + 1]));
+					getNodeFirstPin(way[i]),
+					getNodeFirstPin(way[i + 1]));
 			if(edge != null)
 			{
 				findWidget(edge).setForeground(color);

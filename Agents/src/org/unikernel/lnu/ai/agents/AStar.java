@@ -14,16 +14,13 @@ import org.unikernel.lnu.ai.graph.Vertex;
 @ServiceProvider(service=Algorithm.class)
 public class AStar extends Algorithm
 {
-	public  AStar()
-	{
-		
-	}
-	
+	public  AStar(){}
+
 	public AStar(Graph graph)
 	{
 		super(graph);
 	}
-	
+
 	@Override
 	public List<Vertex> search()
 	{
@@ -38,8 +35,7 @@ public class AStar extends Algorithm
 		}
 		return null;
 	}
-	
-	
+
 	private	boolean aStarSearch(Vertex start, Vertex goal)
 	{   
 		Set<Vertex> openset = new HashSet<Vertex>();    // The set of tentative nodes to be evaluated, initially containing the start node
@@ -67,7 +63,18 @@ public class AStar extends Algorithm
 					});//the node in openset having the lowest f_score[] value
 			
 			if(current.equals(goal))
-				return true; //reconstruct_path(cameFrom, cameFrom[goal])
+			{
+				Vertex walker = current;
+				do
+				{
+					resultingWay.add(walker);
+					walker = cameFrom.get(walker);
+				}
+				while(cameFrom.containsKey(walker));
+				resultingWay.add(walker);
+				Collections.reverse(resultingWay);
+				return true;
+			}
  
 			openset.remove(current);
 			walkedVertices.add(current);
@@ -81,7 +88,6 @@ public class AStar extends Algorithm
 					if(!openset.contains(neighbor))
 					{
 						openset.add(neighbor);
-						walkedTrough.add(new StepData(graph.getConnectionBetween(current, neighbor)));
 						hScore.put(neighbor, ((HeuristicsVertex)neighbor).getHeuristics());
 						tentativeIsBetter = true;
 					}
@@ -94,6 +100,7 @@ public class AStar extends Algorithm
 					if(tentativeIsBetter)
 					{
 						cameFrom.put(neighbor, current);
+						walkedTrough.add(new StepData(graph.getConnectionBetween(current, neighbor)));
 						gScore.put(neighbor, tentativeGScore);
 						fScore.put(neighbor, gScore.get(neighbor)+hScore.get(neighbor));
 					}
