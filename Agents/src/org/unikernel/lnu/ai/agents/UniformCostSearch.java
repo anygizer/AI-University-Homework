@@ -64,7 +64,7 @@ public class UniformCostSearch extends Algorithm
 			walkedVertices.add(currentVertex);
 			for (Vertex nextVertex : graph.getConnectedVertices(currentVertex))
 			{
-				if (!walkedTrough.contains(nextVertex))
+				if (!walkedVertices.contains(nextVertex))
 				{
 					HeuristicsVertex nextHeuristicsVertex = (HeuristicsVertex)nextVertex;
 					int pathWaightToNextVertex = currentVertex.getHeuristics()+(int)graph.getWeightBetween(currentVertex, nextVertex);
