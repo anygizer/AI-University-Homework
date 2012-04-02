@@ -6,6 +6,8 @@
 package org.unikernel.lnu.ai.agents;
 
 import java.util.*;
+import org.openide.util.lookup.ServiceProvider;
+import org.unikernel.lnu.ai.agents.api.Algorithm;
 import org.unikernel.lnu.ai.graph.Graph;
 import org.unikernel.lnu.ai.graph.HeuristicsVertex;
 import org.unikernel.lnu.ai.graph.Vertex;
@@ -14,8 +16,14 @@ import org.unikernel.lnu.ai.graph.Vertex;
  *
  * @author uko
  */
+@ServiceProvider(service=Algorithm.class)
 public class ASrar extends Algorithm
 {
+	public  ASrar()
+	{
+		
+	}
+	
 	public ASrar(Graph graph)
 	{
 		super(graph);
