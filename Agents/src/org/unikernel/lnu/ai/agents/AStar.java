@@ -69,7 +69,18 @@ public class AStar extends Algorithm
 					});//the node in openset having the lowest f_score[] value
 			
 			if(current.equals(goal))
-				return true; //reconstruct_path(cameFrom, cameFrom[goal])
+			{
+				Vertex walker = current;
+				do
+				{
+					resultingWay.add(walker);
+					walker = cameFrom.get(walker);
+				}
+				while(cameFrom.containsKey(walker));
+				resultingWay.add(walker);
+				Collections.reverse(resultingWay);
+				return true;
+			}
  
 			openset.remove(current);
 			walkedVertices.add(current);
