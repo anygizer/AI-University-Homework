@@ -17,14 +17,11 @@ import org.unikernel.lnu.ai.graph.Vertex;
  * @author uko
  */
 @ServiceProvider(service=Algorithm.class)
-public class ASrar extends Algorithm
+public class AStar extends Algorithm
 {
-	public  ASrar()
-	{
-		
-	}
+	public  AStar(){}
 	
-	public ASrar(Graph graph)
+	public AStar(Graph graph)
 	{
 		super(graph);
 	}
