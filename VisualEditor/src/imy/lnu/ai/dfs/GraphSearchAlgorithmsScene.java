@@ -182,21 +182,14 @@ public class GraphSearchAlgorithmsScene extends GraphPinScene<Vertex, Integer, S
 			}
 			return;
 		}
-		if (sd.backtracking)
+		Color lineColor = Color.black;
+		switch(sd.type)
 		{
-			drawWay(new Object[]
-					{
-						sd.connection.getSecondVertex(),
-						sd.connection.getFirstVertex()
-					}, Color.orange);
-		} else
-		{
-			drawWay(new Object[]
-					{
-						sd.connection.getFirstVertex(),
-						sd.connection.getSecondVertex()
-					}, Color.red);
+			case PATH:		lineColor = Color.green; break;
+			case BACKTRACK:	lineColor = Color.red; break;
+			case UNKNOWN:	lineColor = Color.orange;
 		}
+		drawWay(new Object[]{sd.connection.getSecondVertex(), sd.connection.getFirstVertex()}, lineColor);
 	}
 	
 	private void drawWay(Object[] way, Color color)

@@ -75,26 +75,29 @@ public abstract class Algorithm
 		walkedVertices.clear();
 	}
 	
-	public class StepData
+	public static class StepData
 	{
+		public enum Type {PATH, BACKTRACK, UNKNOWN}
+		
 		public Graph.Connection connection;
-		public boolean backtracking = false;
+		public Type type;
 
 		public StepData(Graph.Connection connection)
 		{
 			this.connection = connection;
+			this.type = Type.UNKNOWN;
 		}
 		
-		public StepData(Graph.Connection connection, boolean backtracking)
+		public StepData(Graph.Connection connection, Type type)
 		{
 			this.connection = connection;
-			this.backtracking = backtracking;
+			this.type = type;
 		}
 
 		@Override
 		public String toString()
 		{
-			return connection.getFirstVertex() + "->" + connection.getSecondVertex() + ":" + backtracking;
+			return connection.getFirstVertex() + "->" + connection.getSecondVertex() + ":" + type;
 		}
 	}
 }

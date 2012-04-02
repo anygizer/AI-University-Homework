@@ -94,7 +94,6 @@ public class AStar extends Algorithm
 					if(!openset.contains(neighbor))
 					{
 						openset.add(neighbor);
-						walkedTrough.add(new StepData(graph.getConnectionBetween(current, neighbor)));
 						hScore.put(neighbor, ((HeuristicsVertex)neighbor).getHeuristics());
 						tentativeIsBetter = true;
 					}
@@ -107,6 +106,7 @@ public class AStar extends Algorithm
 					if(tentativeIsBetter)
 					{
 						cameFrom.put(neighbor, current);
+						walkedTrough.add(new StepData(graph.getConnectionBetween(current, neighbor)));
 						gScore.put(neighbor, tentativeGScore);
 						fScore.put(neighbor, gScore.get(neighbor)+hScore.get(neighbor));
 					}
