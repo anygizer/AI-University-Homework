@@ -4,8 +4,6 @@ import java.awt.Color;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -20,8 +18,7 @@ import org.netbeans.api.visual.graph.GraphPinScene;
 import org.netbeans.api.visual.model.ObjectState;
 import org.netbeans.api.visual.router.RouterFactory;
 import org.netbeans.api.visual.widget.*;
-import org.unikernel.lnu.ai.agents.Algorithm;
-import org.unikernel.lnu.ai.agents.IDAStar;
+import org.unikernel.lnu.ai.agents.api.Algorithm;
 import org.unikernel.lnu.ai.graph.Graph;
 import org.unikernel.lnu.ai.graph.HeuristicsVertex;
 import org.unikernel.lnu.ai.graph.Vertex;
@@ -30,7 +27,7 @@ import org.unikernel.lnu.ai.graph.Vertex;
  *
  * @author mcangel
  */
-public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implements PropertyChangeListener
+public class GraphSearchAlgorithmsScene extends GraphPinScene<Vertex, Integer, String>
 {
 	private LayerWidget mainLayer = new LayerWidget(this);
 	private LayerWidget connectionLayer = new LayerWidget(this);
@@ -50,13 +47,9 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 	private List<Algorithm.StepData> sdl;
 	private Iterator<Algorithm.StepData> sdli;
 
-	public DFSGraphScene()
+	public GraphSearchAlgorithmsScene()
 	{
 		g = new Graph();
-		g.addPropertyChangeListener(this);
-		
-//		alg = new DFS(g);
-		alg = new IDAStar(g);
 		
 		this.addChild(mainLayer);
 		this.addChild(connectionLayer);
@@ -66,10 +59,7 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 			@Override
 			public void edit(Widget widget)
 			{
-				String newName = NAME_TEMPLATE;
-				newName = NAME_TEMPLATE + newNameCounter++;
-				g.addVertex(new HeuristicsVertex(newName, new Point(MouseInfo.getPointerInfo().getLocation().x-widget.getScene().getView().getLocationOnScreen().x-20, MouseInfo.getPointerInfo().getLocation().y-widget.getScene().getView().getLocationOnScreen().y-20)));
-				widget.getScene().validate();
+				internalVertexAdd();
 			}
 		}));
 		getActions().addAction(ActionFactory.createPopupMenuAction(new PopupMenuProvider() {
@@ -77,14 +67,16 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 			@Override
 			public JPopupMenu getPopupMenu(final Widget widget, Point localLocation)
 			{
-				final Point localPoint = localLocation;
 				JPopupMenu menu = new JPopupMenu("Menu");
-
-				JMenuItem jmi = new JMenuItem(new AbstractAction() {
-
+				JMenuItem jmi = new JMenuItem(new AbstractAction()
+				{
 					@Override
 					public void actionPerformed(ActionEvent e)
 					{
+						if (alg == null)
+						{
+							return;
+						}
 						new Thread(new Runnable() {
 
 							@Override
@@ -104,11 +96,15 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 				});
 				jmi.setText("Start search");
 				menu.add(jmi);
-				jmi = new JMenuItem(new AbstractAction() {
-
+				jmi = new JMenuItem(new AbstractAction()
+				{
 					@Override
 					public void actionPerformed(ActionEvent e)
 					{
+						if(alg == null)
+						{
+							return;
+						}
 						if(sdl == null)
 						{
 							alg.search();
@@ -126,6 +122,31 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 				return menu;
 			}
 		}));
+	}
+	
+	private void internalVertexAdd()
+	{
+		Point prefLoc = new Point(MouseInfo.getPointerInfo().getLocation().x - getView().getLocationOnScreen().x,
+				MouseInfo.getPointerInfo().getLocation().y - getView().getLocationOnScreen().y);
+		Vertex v = new HeuristicsVertex(1, NAME_TEMPLATE + newNameCounter++, prefLoc);
+		g.addVertex(v);
+		PlaceWidget newPW = (PlaceWidget)addNode(v);
+		//move widget center to the cursor click position
+		prefLoc.setLocation(prefLoc.x-newPW.getWidth()/2, prefLoc.y-newPW.getHeight()/2);
+		newPW.setPreferredLocation(prefLoc);
+		addPin(v, v.getLabel() + " pin");
+		validate();
+	}
+
+	public void setAlgorithm(Algorithm alg)
+	{
+		if(this.alg != null)
+		{
+			alg.setStartVertex(this.alg.getStartVertex());
+			alg.setEndVertex(this.alg.getEndVertex());
+		}
+		alg.setGraph(g);
+		this.alg = alg;
 	}
 
 	private String getNodeFirstPin(Vertex node)
@@ -215,6 +236,10 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 					@Override
 					public void actionPerformed(ActionEvent e)
 					{
+						if(alg == null)
+						{
+							return;
+						}
 						alg.setStartVertex((Vertex) findObject(w));
 					}
 				});
@@ -225,6 +250,10 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 					@Override
 					public void actionPerformed(ActionEvent e)
 					{
+						if(alg == null)
+						{
+							return;
+						}
 						alg.setEndVertex((Vertex) findObject(w));
 					}
 				});
@@ -243,8 +272,7 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 	{
 		LabeledConnectionWidget connection = new LabeledConnectionWidget(this,
 				//RouterFactory.createDirectRouter()
-				RouterFactory.createOrthogonalSearchRouter(mainLayer, connectionLayer)
-						);
+				RouterFactory.createOrthogonalSearchRouter(mainLayer, connectionLayer));
 		connection.setSourceAnchorShape(AnchorShape.NONE);
 		connection.setTargetAnchorShape(AnchorShape.NONE);
 		connection.setEndPointShape(PointShape.NONE);
@@ -290,18 +318,6 @@ public class DFSGraphScene extends GraphPinScene<Vertex, Integer, String> implem
 		widget.getActions().addAction(connectAction);
 
 		return widget;
-	}
-
-	@Override
-	public void propertyChange(PropertyChangeEvent evt)
-	{
-		if (Graph.PROP_VERT_ADDED.equals(evt.getPropertyName()))
-		{
-			Vertex v = (Vertex) evt.getNewValue();
-			addNode(v).setPreferredLocation(v.getPreferredLocation());
-			addPin(v, v.getLabel() + " pin");
-			validate();
-		}
 	}
 
 //TODO: add connection weight prompter

@@ -1,4 +1,4 @@
-package org.unikernel.lnu.ai.agents;
+package org.unikernel.lnu.ai.agents.api;
 
 import java.util.*;
 import org.unikernel.lnu.ai.graph.Graph;
@@ -10,14 +10,23 @@ import org.unikernel.lnu.ai.graph.Vertex;
  */
 public abstract class Algorithm
 {
-	Graph graph;
-	Vertex startVertex;
-	Vertex endVertex;
+	protected Graph graph;
+	protected Vertex startVertex;
+	protected Vertex endVertex;
 	protected ArrayList<StepData> walkedTrough = new ArrayList<StepData>();
 	protected ArrayList<Vertex> resultingWay = new ArrayList<Vertex>();
 	protected Set<Vertex> walkedVertices = new HashSet<Vertex>();
 
+	public Algorithm()
+	{
+	}
+	
 	public Algorithm(Graph graph)
+	{
+		this.graph = graph;
+	}
+
+	public void setGraph(Graph graph)
 	{
 		this.graph = graph;
 	}
@@ -26,9 +35,20 @@ public abstract class Algorithm
 	{
 		this.startVertex = startVertex;
 	}
+
+	public Vertex getStartVertex()
+	{
+		return startVertex;
+	}
+	
 	public void setEndVertex(Vertex endVertex)
 	{
 		this.endVertex = endVertex;
+	}
+
+	public Vertex getEndVertex()
+	{
+		return endVertex;
 	}
 
 	public List<StepData> getWalkedTrough()
