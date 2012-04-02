@@ -189,16 +189,16 @@ public class GraphSearchAlgorithmsScene extends GraphPinScene<Vertex, Integer, S
 			case BACKTRACK:	lineColor = Color.red; break;
 			case UNKNOWN:	lineColor = Color.orange;
 		}
-		drawWay(new Object[]{sd.connection.getSecondVertex(), sd.connection.getFirstVertex()}, lineColor);
+		drawWay(new Vertex[]{sd.connection.getSecondVertex(), sd.connection.getFirstVertex()}, lineColor);
 	}
 	
-	private void drawWay(Object[] way, Color color)
+	private void drawWay(Vertex[] way, Color color)
 	{
 		for (int i = 0; i < way.length - 1; i++)
 		{
 			Integer edge = findFirstEdgeBetween(
-					getNodeFirstPin((Vertex) way[i]),
-					getNodeFirstPin((Vertex) way[i + 1]));
+					getNodeFirstPin(way[i]),
+					getNodeFirstPin(way[i + 1]));
 			if(edge != null)
 			{
 				findWidget(edge).setForeground(color);
