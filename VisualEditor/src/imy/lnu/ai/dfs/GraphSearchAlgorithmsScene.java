@@ -46,6 +46,7 @@ public class GraphSearchAlgorithmsScene extends GraphPinScene<Vertex, Integer, S
 	private Algorithm alg;
 	private List<Algorithm.StepData> sdl;
 	private Iterator<Algorithm.StepData> sdli;
+	private Color pathColor = Color.red;
 
 	public GraphSearchAlgorithmsScene()
 	{
@@ -90,7 +91,7 @@ public class GraphSearchAlgorithmsScene extends GraphPinScene<Vertex, Integer, S
 								{
 									drawWay(sd);
 								}
-								drawWay(alg.getResultingWay().toArray(new Vertex[alg.getResultingWay().size()]), Color.green);
+								drawWay(alg.getResultingWay().toArray(new Vertex[alg.getResultingWay().size()]), pathColor);
 							}
 						}).start();
 					}
@@ -117,6 +118,36 @@ public class GraphSearchAlgorithmsScene extends GraphPinScene<Vertex, Integer, S
 				});
 				jmi.setText("Search step");
 				menu.add(jmi);
+				jmi = new JMenuItem(new AbstractAction()
+				{
+					@Override
+					public void actionPerformed(ActionEvent e)
+					{
+						getNodeFirstPin((Vertex)findObject(widget));
+						int n = 6;
+						int m = 5;
+						Widget[][] matr = new Widget[n][m];
+						for(int i = 0; i < n; i++)
+							for(int j = 0; j < m; j++)
+								matr[i][j] = internalVertexAdd(new Point(40+120*i, 40+120*j));
+						for(int i = 0; i < n-1; i++)
+							for(int j = 0; j < m-1; j++)
+							{
+								internalConnect(getNodeFirstPin((Vertex)findObject(matr[i][j])),
+										getNodeFirstPin((Vertex)findObject(matr[i][j+1])));
+								internalConnect(getNodeFirstPin((Vertex)findObject(matr[i][j])),
+										getNodeFirstPin((Vertex)findObject(matr[i+1][j])));
+							}
+						for(int i = 0; i < n-1; i++)
+							internalConnect(getNodeFirstPin((Vertex) findObject(matr[i][m-1])),
+									getNodeFirstPin((Vertex) findObject(matr[i+1][m-1])));
+						for(int j = 0; j < m-1; j++)
+							internalConnect(getNodeFirstPin((Vertex) findObject(matr[n - 1][j])),
+									getNodeFirstPin((Vertex) findObject(matr[n - 1][j + 1])));
+					}
+				});
+				jmi.setText("Do the Magic!");
+				menu.add(jmi);
 				return menu;
 			}
 		}));
@@ -126,14 +157,29 @@ public class GraphSearchAlgorithmsScene extends GraphPinScene<Vertex, Integer, S
 	{
 		Point prefLoc = new Point(MouseInfo.getPointerInfo().getLocation().x - getView().getLocationOnScreen().x,
 				MouseInfo.getPointerInfo().getLocation().y - getView().getLocationOnScreen().y);
+		internalVertexAdd(prefLoc);
+	}
+	
+	private Widget internalVertexAdd(Point prefLoc)
+	{
 		Vertex v = new HeuristicsVertex(1, NAME_TEMPLATE + newNameCounter++, prefLoc);
 		g.addVertex(v);
-		PlaceWidget newPW = (PlaceWidget)addNode(v);
+		PlaceWidget newPW = (PlaceWidget) addNode(v);
 		//move widget center to the cursor click position
 		prefLoc.setLocation(prefLoc.x-newPW.getWidth()/2, prefLoc.y-newPW.getHeight()/2);
 		newPW.setPreferredLocation(prefLoc);
 		addPin(v, v.getLabel() + " pin");
 		validate();
+		return newPW;
+	}
+	
+	private void internalConnect(String source, String target)
+	{
+		g.connectVertices(getPinNode(source), getPinNode(target), 1);
+		Integer edge = new Integer(edgeCounter++);
+		((LabeledConnectionWidget) addEdge(edge)).getLabelWidget().setLabel(String.valueOf(1));
+		setEdgeSource(edge, source);
+		setEdgeTarget(edge, target);
 	}
 
 	public void setAlgorithm(Algorithm alg)
@@ -144,6 +190,7 @@ public class GraphSearchAlgorithmsScene extends GraphPinScene<Vertex, Integer, S
 			alg.setEndVertex(this.alg.getEndVertex());
 		}
 		alg.setGraph(g);
+		alg.reset();
 		this.alg = alg;
 	}
 
@@ -183,9 +230,9 @@ public class GraphSearchAlgorithmsScene extends GraphPinScene<Vertex, Integer, S
 		Color lineColor = Color.black;
 		switch(sd.type)
 		{
-			case PATH:		lineColor = Color.green; break;
-			case BACKTRACK:	lineColor = Color.red; break;
-			case UNKNOWN:	lineColor = Color.orange;
+			case PATH:		lineColor = pathColor; break;
+			case BACKTRACK:	lineColor = Color.orange; break;
+			case UNKNOWN:	lineColor = Color.green;
 		}
 		drawWay(new Vertex[]{sd.connection.getSecondVertex(), sd.connection.getFirstVertex()}, lineColor);
 	}
